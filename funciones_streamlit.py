@@ -1,13 +1,38 @@
 import nltk
+import numpy as np
+import cv2
 nltk.download('punkt')
+import tensorflow as tf
 from nltk.translate.bleu_score import corpus_bleu
 from nltk.translate.bleu_score import SmoothingFunction
 from nltk.tokenize import word_tokenize
 from keras.models import load_model
-from tensorflow.keras.layers import Input
-from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Input,Resizing, Rescaling
+from tensorflow.keras.models import Model,Sequential
 from utility_functions import decode_sequence
 from tensorflow.keras.preprocessing.text import text_to_word_sequence
+from torchvision import transforms
+from tensorflow.keras.preprocessing import image
+from tensorflow.keras.applications.resnet50 import preprocess_input
+
+def clasificar_imagen_cnn(imagen, model):
+    img_size = (224, 224)
+    
+    # Resize and preprocess the image
+    img = imagen.resize(img_size)
+    img_array = image.img_to_array(img)
+    img_array = np.expand_dims(img_array, axis=0)
+    img_array = preprocess_input(img_array)
+
+    # Make predictions
+    predictions = model.predict(img_array)
+
+    # Map predicted indices to class labels
+    class_to_index = {0: 'baseball', 1: 'basketball', 2: 'bowling', 3: 'boxing', 4: 'football', 5: 'formula 1 racing', 6: 'hockey', 7: 'polo', 8: 'swimming', 9: 'tennis'}
+    predicted_index = np.argmax(predictions)
+    predicted_class = class_to_index[predicted_index]
+
+    return predicted_class
 
 def generar_resumen(summarizer,content,category,summmary_ref):
     score = 0
