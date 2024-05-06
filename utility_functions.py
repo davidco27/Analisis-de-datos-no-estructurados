@@ -1,10 +1,10 @@
 import numpy as np
-import pickle
+import joblib
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 with open('TEXTO/xtokenizer.pickle', 'rb') as handle:
-    x_tokenizer = pickle.load(handle)
+    x_tokenizer = joblib.load(handle)
 with open('TEXTO/ytokenizer.pickle', 'rb') as handle:
-    y_tokenizer = pickle.load(handle)
+    y_tokenizer = joblib.load(handle)
 
 reverse_target_word_index=y_tokenizer.index_word
 reverse_source_word_index=x_tokenizer.index_word
