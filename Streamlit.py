@@ -15,7 +15,7 @@ import keras
 from PIL import Image
 from keras.models import load_model, Model,Sequential
 from transformers import pipeline
-from funciones_streamlit import generar_resumen,generar_resumen_few_shot,generar_resumen_lstm,clasificar_imagen_cnn
+from funciones_streamlit import generar_resumen,generar_resumen_few_shot,generar_resumen_lstm,clasificar_imagen_cnn,search_news
 from transformers import AutoModelForSeq2SeqLM
 from transformers import AutoTokenizer
 from keras.layers import Input,Dense,Activation,ZeroPadding2D,BatchNormalization,Flatten,Conv2D
@@ -87,6 +87,16 @@ if selected_folder == "Texto":
         st.image("imagenesEDA/politics_wordcloud.png", use_column_width=True)
         st.image("imagenesEDA/sport_wordcloud.png", use_column_width=True)
         st.image("imagenesEDA/tech_wordcloud.png", use_column_width=True)
+        st.subheader("Búsqueda de noticias por palabras clave")
+        st.write("En este apartado utilizamos TF-IDF para buscar las 5 noticias más relevantes de nuestro dataset basándonos en unas keywords introducidas por el usuario.")
+        df = pd.read_csv('TEXTO/news_df.csv')
+        request = st.text_input("Introducir de 1 a 5 palabras clave")
+        btn_search = st.button("Buscar noticias")
+        if btn_search:
+              with st.spinner(text="Seleccionando las noticias..."):
+                 st.table(search_news(df,request))
+
+       
     if eda == "Modelos":
         st.divider()
         st.header("Resumen de las noticias")
@@ -163,24 +173,35 @@ if selected_folder == "Imagen":
     if uploaded_file is not None:
         image = Image.open(uploaded_file)
         st.image(image, caption='Imagen cargada', use_column_width=True)
+    clases = ['hockey', 'tennis', 'baseball', 'swimming', 'polo', 'basketball', 'formula 1 racing', 'boxing', 'football', 'bowling']
     opcion_seleccionada = st.selectbox(
         'Seleccione el tipo de imagen que va a introducir:',
-        ('Inside city', 'Kitchen', 'Office', 'Store', 'Street', 'Suburb', 'Highway', 'Coast', 'Mountain', 'Open country', 'Industrial', 'Forest', 'Tall building', 'Bedroom', 'Living room')
+        clases
     )
     if modelo_seleccionado == "CNN from scratch":
-        clases = ['hockey', 'tennis', 'baseball', 'swimming', 'polo', 'basketball', 'formula 1 racing', 'boxing', 'football', 'bowling']
         btn_gen = st.button("Clasificar Imagen con el modelo from scratch")
         if btn_gen:
-            st.write("Hola")
             with st.spinner(text="Clasificando la imagen"):
                  res = clasificar_imagen_cnn(image, scratch_model)
-            st.write(res)
-            # if opcion_seleccionada == res:
-            #     st.success("¡Correcto!")
-            #     st.write(f"Predicción: {res} | imagen introducida: {opcion_seleccionada}", unsafe_allow_html=True)
-            # else:
-            #     st.error("Incorrecto")
-            #     st.write(f"Predicción: {res} | imagen introducida: {opcion_seleccionada}", unsafe_allow_html=True)
+
+            if opcion_seleccionada == res:
+                st.success("¡Correcto!")
+                st.write(f"Predicción: {res} | imagen introducida: {opcion_seleccionada}", unsafe_allow_html=True)
+            else:
+                st.error("Incorrecto")
+                st.write(f"Predicción: {res} | imagen introducida: {opcion_seleccionada}", unsafe_allow_html=True)
+    if modelo_seleccionado == "Transfer Learning":
+        btn_gen = st.button("Clasificar Imagen con el modelo from scratch")
+        if btn_gen:
+            with st.spinner(text="Clasificando la imagen"):
+                 res = clasificar_imagen_cnn(image, scratch_model)
+
+            if opcion_seleccionada == res:
+                st.success("¡Correcto!")
+                st.write(f"Predicción: {res} | imagen introducida: {opcion_seleccionada}", unsafe_allow_html=True)
+            else:
+                st.error("Incorrecto")
+                st.write(f"Predicción: {res} | imagen introducida: {opcion_seleccionada}", unsafe_allow_html=True)
 
 
                 

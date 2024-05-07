@@ -14,6 +14,25 @@ from tensorflow.keras.preprocessing.text import text_to_word_sequence
 from torchvision import transforms
 from tensorflow.keras.preprocessing import image
 from tensorflow.keras.applications.resnet50 import preprocess_input
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+def search_news(df,request):
+    text_content = df['content']
+    vector = TfidfVectorizer(max_df=0.3,         # drop words that occur in more than X percent of documents
+                                    #min_df=8,      # only use words that appear at least X times
+                                    stop_words='english', # remove stop words
+                                    lowercase=True, # Convert everything to lower case 
+                                    use_idf=True,   # Use idf
+                                    norm=u'l2',     # Normalization
+                                    smooth_idf=True # Prevents divide-by-zero errors
+                                    )
+    tfidf = vector.fit_transform(text_content)
+    request_transform = vector.transform([request])
+    similarity = np.dot(request_transform,np.transpose(tfidf))
+    x = np.array(similarity.toarray()[0])
+    indices=np.argsort(x)[-5:][::-1]
+    return df.loc[indices][["category","content"]]
+
 
 def clasificar_imagen_cnn(imagen, model):
     img_size = (224, 224)
@@ -22,7 +41,6 @@ def clasificar_imagen_cnn(imagen, model):
     img = imagen.resize(img_size)
     img_array = image.img_to_array(img)
     img_array = np.expand_dims(img_array, axis=0)
-    img_array = preprocess_input(img_array)
 
     # Make predictions
     predictions = model.predict(img_array)
