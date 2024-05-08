@@ -13,13 +13,16 @@ from datetime import datetime
 import joblib
 import keras
 from PIL import Image
-from keras.models import load_model, Model,Sequential
+from keras.models import Sequential
 from transformers import pipeline
-from funciones_streamlit import generar_resumen,generar_resumen_few_shot,generar_resumen_lstm,clasificar_imagen_cnn,search_news
+from funciones_streamlit import generar_resumen,generar_resumen_few_shot,generar_resumen_lstm,clasificar_imagen_cnn,search_news,clasificar_imagen_transfer_learning
 from transformers import AutoModelForSeq2SeqLM
 from transformers import AutoTokenizer
-from keras.layers import Input,Dense,Activation,ZeroPadding2D,BatchNormalization,Flatten,Conv2D
-from keras.layers import AveragePooling2D,GlobalAveragePooling2D,GlobalMaxPool2D,MaxPooling2D,MaxPool2D,Dropout
+from keras.layers import Dense,Flatten,Conv2D
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Input, Dense, Flatten, GlobalAveragePooling2D
+from tensorflow.keras.applications import EfficientNetB0
+from keras.layers import MaxPool2D,Dropout
 
 def create_model():
     model = Sequential()
@@ -44,6 +47,21 @@ def create_model():
 
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
     return model
+def create_transfer_model():
+    base_model = EfficientNetB0(weights="imagenet", include_top=False, input_shape=(224, 224, 3))
+
+    # Congelamos todas las capas menos las 2 ultimas
+    for layer in base_model.layers[:-2]:
+        layer.trainable = False
+
+    # Clasificador
+    x = base_model.output
+    x = GlobalAveragePooling2D()(x)
+    x = Dropout(0.25)(x)
+    predictions = Dense(100, activation="softmax")(x)
+
+    model = Model(inputs=base_model.input, outputs=predictions)
+    return model
 @st.cache_resource
 def load_resources():
     model_name='google/flan-t5-base'
@@ -51,11 +69,12 @@ def load_resources():
     summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
     tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=True)
     scratch_model = create_model()
-    scratch_model.load_weights("IMAGEN\scratch.h5")
-   # transfer_model = load_model("IMAGEN\model.transfer_learning_v2.keras")
-    return model,tokenizer,summarizer,scratch_model
-print(keras.__version__)
-model, tokenizer,summarizer,scratch_model = load_resources()
+    scratch_model.load_weights("IMAGEN/scratch.h5")
+    transfer_model = create_transfer_model()
+    transfer_model.load_weights("IMAGEN/transfer.weights.h5")
+    return model,tokenizer,summarizer,scratch_model,transfer_model
+
+model, tokenizer,summarizer,scratch_model,transfer_model = load_resources()
 folders_in_directory = ["Texto","Imagen"]
 folders_in_directory.insert(0, "Sin selección")
 selected_folder = st.sidebar.selectbox("Selecciona un entorno", folders_in_directory)
@@ -166,7 +185,8 @@ if selected_folder == "Imagen":
     st.write("Es una colección de imágenes que cubren 100 deportes diferentes. Las imágenes están en formato jpg con dimensiones de 224x224x3. Los datos están separados en directorios de entrenamiento, prueba y validación. Además, se incluye un archivo CSV para aquellos que deseen usarlo para crear sus propios conjuntos de datos de entrenamiento, prueba y validación.")
     st.divider()
     st.header("Clasificación de imágenes")
-    st.write("Presnetamos 2 modelos que buscan realizar una clasificación ")
+    st.write("Hemos creado una funcionalidad que permite al usuario subir una imagen y te devuelve el deporte al que se corresponde. Para ello presentamos 2 modelos distintos: el primero es un modelo from scratch que implementa una CNN mientras que el segundo utiliza Transfer Learning.")
+    st.write("Para realizar una prueba, elige una de las 2 opciones y sube una imagen en formato JPEG")
     modelos = ["CNN from scratch", "Transfer Learning"]
     modelo_seleccionado = st.radio("Selecciona un modelo:", modelos)
     uploaded_file = st.file_uploader("Elige una imagen...", type=["jpg", "png"], help='Arrastra una imagen o haz clic para seleccionarla')  
@@ -174,11 +194,36 @@ if selected_folder == "Imagen":
         image = Image.open(uploaded_file)
         st.image(image, caption='Imagen cargada', use_column_width=True)
     clases = ['hockey', 'tennis', 'baseball', 'swimming', 'polo', 'basketball', 'formula 1 racing', 'boxing', 'football', 'bowling']
-    opcion_seleccionada = st.selectbox(
+    if modelo_seleccionado == "CNN from scratch":
+        opcion_seleccionada = st.selectbox(
         'Seleccione el tipo de imagen que va a introducir:',
         clases
     )
-    if modelo_seleccionado == "CNN from scratch":
+        st.write("La CNN toma como entrada imágenes de tamaño 224x224x3 y utiliza 4 capas para extraer features,todas con filtros de 3x3. El número de filtros utilizados en cada capa es respectivamente: 32,100,64 y 128. Después de cada capa de convolución con activación RELU, se utiliza una capa de MaxPooling para reducir la dimensionalidad espacial de la salida. Además se incorporan capas de Dropout para evitar el sobreajuste del modelo. Finalmente, se aplana la salida y se conecta a dos fully connected layers,con una capa de salida con activación softmax para generar las probabilidades de pertenencia a cada una de las 10 clases. Se muestra la estructura a continuación:")
+        st.code("""
+                model = Sequential()
+    model.add(Conv2D(input_shape=(224,224,3), filters=32, kernel_size=(3,3), padding="same", activation="relu"))
+    model.add(Conv2D(filters=100, kernel_size=(3, 3), padding="same", activation="relu"))
+    model.add(MaxPool2D(pool_size=(2, 2), strides=(2, 2)))
+    model.add(Dropout(0.25))
+
+    model.add(Conv2D(filters=64, kernel_size=(3, 3), padding="same", activation="relu"))
+    model.add(MaxPool2D(pool_size=(2, 2), strides=(2, 2)))
+    model.add(Dropout(0.25))
+
+    model.add(Conv2D(filters=128, kernel_size=(3, 3), padding="same", activation="relu"))
+    model.add(MaxPool2D(pool_size=(2, 2), strides=(2, 2)))
+    model.add(Dropout(0.25))
+
+    model.add(Flatten())
+
+    model.add(Dense(units=233, activation="relu"))
+    model.add(Dropout(0.5))
+    model.add(Dense(units=10, activation="softmax"))  # 10 unidades para salida, por las clases
+
+    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+    return model
+                """)
         btn_gen = st.button("Clasificar Imagen con el modelo from scratch")
         if btn_gen:
             with st.spinner(text="Clasificando la imagen"):
@@ -191,11 +236,18 @@ if selected_folder == "Imagen":
                 st.error("Incorrecto")
                 st.write(f"Predicción: {res} | imagen introducida: {opcion_seleccionada}", unsafe_allow_html=True)
     if modelo_seleccionado == "Transfer Learning":
-        btn_gen = st.button("Clasificar Imagen con el modelo from scratch")
+        directorio = 'IMAGEN/data/train'
+        carpetas = [nombre for nombre in os.listdir(directorio) if os.path.isdir(os.path.join(directorio, nombre))]
+        carpetas.sort()
+        opcion_seleccionada = st.selectbox(
+        'Seleccione el tipo de imagen que va a introducir:',
+        carpetas
+    )           
+        st.write("En este caso hemos utilizado como modelo base la red neuronal EfficientNetB0, con los pesos de Imagenet. Descongelamos las últimas dos capas del modelo base y añadimos el clasificador al final. A continuación reentrenamos el modelo con nuestro dataset de deportes buscando mejorar la accuracy.")
+        btn_gen = st.button("Clasificar Imagen con el modelo de Transfer Learning")
         if btn_gen:
             with st.spinner(text="Clasificando la imagen"):
-                 res = clasificar_imagen_cnn(image, scratch_model)
-
+                res = clasificar_imagen_transfer_learning(image, transfer_model,carpetas)
             if opcion_seleccionada == res:
                 st.success("¡Correcto!")
                 st.write(f"Predicción: {res} | imagen introducida: {opcion_seleccionada}", unsafe_allow_html=True)

@@ -1,7 +1,7 @@
 import nltk
 import numpy as np
-import cv2
 nltk.download('punkt')
+import os
 import tensorflow as tf
 from nltk.translate.bleu_score import corpus_bleu
 from nltk.translate.bleu_score import SmoothingFunction
@@ -47,6 +47,23 @@ def clasificar_imagen_cnn(imagen, model):
 
     # Map predicted indices to class labels
     class_to_index = {0: 'baseball', 1: 'basketball', 2: 'bowling', 3: 'boxing', 4: 'football', 5: 'formula 1 racing', 6: 'hockey', 7: 'polo', 8: 'swimming', 9: 'tennis'}
+    predicted_index = np.argmax(predictions)
+    predicted_class = class_to_index[predicted_index]
+
+    return predicted_class
+
+def clasificar_imagen_transfer_learning(imagen, model,carpetas):
+    img_size = (299, 299)
+    
+    # Resize and preprocess the image
+    img = imagen.resize(img_size)
+    img_array = image.img_to_array(img)
+    img_array = np.expand_dims(img_array, axis=0)
+   
+     # Make predictions
+    predictions = model.predict(img_array)
+    # Crear el diccionario con los números como clave y los nombres de las carpetas como valor
+    class_to_index = {indice: carpeta for indice, carpeta in enumerate(carpetas, start=0)}
     predicted_index = np.argmax(predictions)
     predicted_class = class_to_index[predicted_index]
 
