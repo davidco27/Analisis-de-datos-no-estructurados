@@ -144,9 +144,9 @@ Esto permite representar documentos como vectores numéricos, donde los término
     if eda == "Modelos":
         st.divider()
         st.header("Resumen de las noticias")
-        st.write("Hemos implementado diferentes modelos para crear resúmenes de noticias. Para probarlo, empieza elegiendo uno de los tres modelos: con LSTM from Scratch, Modelo de Hugging Face, Few-shot con Hugging Face.")
+        st.write("Hemos implementado diferentes modelos para crear resúmenes de noticias. Para probarlo, empieza elegiendo uno de los tres modelos: con arquitectura Encoder-Decoder from Scratch, Modelo de Hugging Face, Few-shot con Hugging Face.")
         st.write("Para medir la eficiencia de los resumenes hemos utilizado BLEU. BLEU es una métrica de evaluación de la calidad de traducción automática que compara un texto generado con uno de referencia, calculando la precisión de las n-gramas coincidentes. Cuanto más alto es el puntaje BLEU, más similar es el texto generado al texto de referencia.")
-        modelos = ["LSTM", "Hugging Face","Few-shot"]
+        modelos = ["Encoder-Decoder", "Hugging Face","Few-shot"]
         modelo_seleccionado = st.radio("Selecciona un modelo:", modelos)
         st.write("El resumen no puede ser más largo de 200 palabras ")
         txt = st.text_area(
@@ -241,8 +241,49 @@ Summary: """)
                     st.write(rsm_gen)
                     st.markdown("***BLEU score obtenido***")
                     st.write(f"{score*100:.2f} %")
-        if modelo_seleccionado == "LSTM":
-            btn_gen = st.button("Generar Resumen con Modelo de LSTM")
+        if modelo_seleccionado == "Encoder-Decoder":
+            st.write("Este modelo tiene como objetivo el resumen de noticias, pero para su consecución utiliza una estrategia completamente distinta a los otros dos. En vez de emplear un modelo de LLM pre-entrenado, usa una arquitectura de encoder-decoder from scratch para tratar problemas de tipo Seq2seq.")
+            st.write("""La primera parte de la red es el encoder. En esta sección se recibe la noticia tokenizada y se crean los Embeddings. Estos embeddings se pasan a continuación por 3 redes LSTM para obtener un vector de tamaño fijo con los encodings.""")
+            st.code("""encoder_inputs = Input(shape=(max_text_len,))
+
+# Capa de embeddings
+enc_emb =  Embedding(x_voc, embedding_dim,trainable=True)(encoder_inputs)
+
+#Lstm 1
+encoder_lstm1 = LSTM(latent_dim,return_sequences=True,return_state=True,dropout=0.4,recurrent_dropout=0.4)
+encoder_output1, state_h1, state_c1 = encoder_lstm1(enc_emb)
+
+#Lstm 2
+encoder_lstm2 = LSTM(latent_dim,return_sequences=True,return_state=True,dropout=0.4,recurrent_dropout=0.4)
+encoder_output2, state_h2, state_c2 = encoder_lstm2(encoder_output1)
+
+#Lstm 3
+encoder_lstm3=LSTM(latent_dim, return_state=True, return_sequences=True,dropout=0.4,recurrent_dropout=0.4)
+encoder_outputs, state_h, state_c= encoder_lstm3(encoder_output2)""")
+            st.write("El siguiente componente es el decoder que recibe como entrada la salida del encoder. Crea los embedings de los resumenes y los introduce en una LSTM. Un detalle clave del encoder es la Attention Layer que busca recoger conexiones entre distintos tokens para mejorar el rendimiento. Se concatena la salida de la LSTM y de la Attention Layer y se pasan a una red Dense que genera los tokens de salida junto con sus probabilidades.")
+            st.code("""
+decoder_inputs = Input(shape=(None,))
+
+
+dec_emb_layer = Embedding(y_voc, embedding_dim,trainable=True)
+dec_emb = dec_emb_layer(decoder_inputs)
+
+decoder_lstm = LSTM(latent_dim, return_sequences=True, return_state=True,dropout=0.4,recurrent_dropout=0.2)
+decoder_outputs,decoder_fwd_state, decoder_back_state = decoder_lstm(dec_emb,initial_state=[state_h, state_c])
+
+# Attention layer
+attn_layer = AttentionLayer(name='attention_layer') 
+attn_out, attn_states = attn_layer([encoder_outputs, decoder_outputs])
+
+decoder_concat_input = Concatenate(axis=-1, name='concat_layer')([decoder_outputs, attn_out])
+
+# Dense Layer
+decoder_dense =  TimeDistributed(Dense(y_voc, activation='softmax'))
+decoder_outputs = decoder_dense(decoder_outputs)
+""")
+            st.write("Se fija el tamaño máximo de las noticias de entrada a 350. Como todas las entradas al modelo tienen que tener el mismo tamaño, se le añade padding al final de las noticias para llegar al máximo.")
+            st.write("Como se puede comprobar, la salida del modelo es una secuencia en la que se repite el mismo token una y otra vez. El motivo es que las secuencias de entrada son demasiado largas y complejas, además que para un entrenamiento desde cero se necesitan más de las aproximadamente 2000 muestras que tenemos. Esta arquitectura es bastante limitada en un problema así y no puede competir con los otros dos modelos de Hugging Face que presentamos.")
+            btn_gen = st.button("Generar Resumen con Modelo from Scratch")
             if btn_gen:
                 with st.spinner(text="Generando el resumen..."):
                     rsm_gen,score, error = generar_resumen_lstm(txt,rsm)
@@ -260,103 +301,126 @@ if selected_folder == "Imagen":
     st.subheader("Dataset de imágenes de 100 deportes")
     st.write("Es una colección de imágenes que cubren 100 deportes diferentes. Las imágenes están en formato jpg con dimensiones de 224x224x3. Los datos están separados en directorios de entrenamiento, prueba y validación. Además, se incluye un archivo CSV para aquellos que deseen usarlo para crear sus propios conjuntos de datos de entrenamiento, prueba y validación.")
     st.divider()
-    st.header("Clasificación de imágenes")
-    st.write("Hemos creado una funcionalidad que permite al usuario subir una imagen y te devuelve el deporte al que se corresponde. Para ello presentamos 2 modelos distintos: el primero es un modelo from scratch que implementa una CNN mientras que el segundo utiliza Transfer Learning.")
-    st.write("Para cada modelo primero hay una pequeña explicación de cada modelo y al final del todo existe la posibilidad de hacer una prueba pulsando el botón del final de la página")
-    st.write("Para realizar una prueba, elige una de las 2 opciones y sube una imagen en formato JPEG")
-    modelos = ["CNN from scratch", "Transfer Learning"]
-    modelo_seleccionado = st.radio("Selecciona un modelo:", modelos)
-    uploaded_file = st.file_uploader("Elige una imagen...", type=["jpg", "png"], help='Arrastra una imagen o haz clic para seleccionarla')  
-    if uploaded_file is not None:
-        image = Image.open(uploaded_file)
-        st.image(image, caption='Imagen cargada', use_column_width=True)
-    clases = ['hockey', 'tennis', 'baseball', 'swimming', 'polo', 'basketball', 'formula 1 racing', 'boxing', 'football', 'bowling']
-    if modelo_seleccionado == "CNN from scratch":
-        opcion_seleccionada = st.selectbox(
-        'Seleccione el tipo de imagen que va a introducir:',
-        clases
-    )
-        st.write("La CNN toma como entrada imágenes de tamaño 224x224x3 y utiliza 4 capas para extraer features,todas con filtros de 3x3. El número de filtros utilizados en cada capa es respectivamente: 32,100,64 y 128. Después de cada capa de convolución con activación RELU, se utiliza una capa de MaxPooling para reducir la dimensionalidad espacial de la salida. Además se incorporan capas de Dropout para evitar el sobreajuste del modelo. Finalmente, se aplana la salida y se conecta a dos fully connected layers,con una capa de salida con activación softmax para generar las probabilidades de pertenencia a cada una de las 10 clases.")
-        st.write("Para el caso de la CNN, como se ha mencionado previamente únicamente se han seleccionado 10 deportes, por ello únicamente se puede elegir entre esos deportes. Esto se ha hecho así para que sea posible el entrenamiento y un acierto razonable.")
-        st.write("Para entrenar la CNN se ha utilizado una herramienta conocida como optuna. Como los recursos de los que se dispone para entrenar y optimizar son limitados. En la etapa de optimización se ha buscado únicamente los parámetros del número de filtros de la 2 capa convolucional y el número de neuronas de la primera capa densa. Los valores obtenidos son: Número de filtros: 100, Número de neuronas: 233")
-        st.write("El código de la red finalmente sería el siguiente:")
-        st.code("""
-                model = Sequential()
-    model.add(Conv2D(input_shape=(224,224,3), filters=32, kernel_size=(3,3), padding="same", activation="relu"))
-    model.add(Conv2D(filters=100, kernel_size=(3, 3), padding="same", activation="relu"))
-    model.add(MaxPool2D(pool_size=(2, 2), strides=(2, 2)))
-    model.add(Dropout(0.25))
-
-    model.add(Conv2D(filters=64, kernel_size=(3, 3), padding="same", activation="relu"))
-    model.add(MaxPool2D(pool_size=(2, 2), strides=(2, 2)))
-    model.add(Dropout(0.25))
-
-    model.add(Conv2D(filters=128, kernel_size=(3, 3), padding="same", activation="relu"))
-    model.add(MaxPool2D(pool_size=(2, 2), strides=(2, 2)))
-    model.add(Dropout(0.25))
-
-    model.add(Flatten())
-
-    model.add(Dense(units=233, activation="relu"))
-    model.add(Dropout(0.5))
-    model.add(Dense(units=10, activation="softmax"))  # 10 unidades para salida, por las clases
-
-    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
-    return model
+    img_pos = ["Generador","Clasificador"]
+    img = st.radio("Elige si quieres probar el generador de imágenes o el clasificador de imágenes por deporte (En cualquier momento puede pulsar el otro botón para ver otra sección)", img_pos)
+    if img == "Generador":
+        st.header("Generador de imágenes con GAN")
+        st.write("""Una de las features que hemos implementado con este dataset es la generación de imágenes artificiales utilizando una red Generativa Adversaria (GAN).
+                La GAN consiste en dos redes neuronales compitiendo entre sí. 
+                La primera red, llamada generador, crea imágenes a partir de ruido aleatorio que intentan pasar como reales; mientras que la segunda red, el discriminador, 
+                evalúa estas imágenes y decide si son reales o falses. A medida que pasa el tiempo el generador mejora su capacidad para engañar al discriminador,
+                y el discriminador mejora su habilidad para distinguir lo real de lo generado. De esta forma el sistema como un todo aprende a generar datos cada vez más realistas.
                 """)
-        st.write("El summary del modelo para ver el número de parámetros y de un vistazo las capas es:")
-        st.image("imagenesIMAGEN/model_summary.png", use_column_width=True)
-        st.write("Para terminar con la explicación, los resultados obtenidos con el modelo en la fase de entrenamiento son los siguientes:")
-        st.image("imagenesIMAGEN\grafiacasScratch.png", use_column_width=True)
-        st.write("En las gráficas se puede apreciar el entrenamiento del modelo a lo largo de las épocas. Cabe destacar una divergencia significativa entre la precisión y la loss de entrenamiento (líneas azules) frente a la precisión y la loss de validación (líneas rojas). El modelo alcanza una alta precisión en los datos de entrenamiento, pero la fluctuante y decreciente precisión en los datos de validación, junto con la divergencia en las curvas de pérdida, sugieren un claro caso de sobreajuste.")
-        st.write("Vamos a analizar la precisión para las diferentes clases en test")
-        st.image("imagenesIMAGEN/testScratch.png", use_column_width=True)
-        st.write("El informe de clasificación y las gráficas de precisión y loss indican que el modelo presenta un caso claro de sobreajuste, donde la precisión en los datos de entrenamiento es alta, pero la precisión en validación fluctúa y se mantiene baja, especialmente para clases como bowling y tennis. La discrepancia entre precisión y recall para algunas categorías refleja problemas de desequilibrio y sesgo en los datos. Este clasificador tiene un desbalanceo en la precisión entre clases. Entendemos que es así porque es un modelo sencillo, únicamente para probar a realizar el modelo from scratch y pegarnos con ello.")
-        st.write("PULSAR EL BOTÓN DE DEBAJO PARA PROBAR EL CLASIFICADOR FROM SCRATCH")
-        btn_gen = st.button("Clasificar Imagen con el modelo from scratch")
-        if btn_gen:
-            with st.spinner(text="Clasificando la imagen"):
-                 res = clasificar_imagen_cnn(image, scratch_model)
+        st.write("Ponemos a entrenar la GAN durante 50 épocas con imágenes de los 100 deportes, mostrando en cada época 4 imágenes de la GAN para ver cómo evoluciona. Al principio las imágenes de la GAN no es más que el ruido que le metemos:")
+        st.image("imagenesIMAGEN/ganStart.png", use_column_width=True)
+        st.write("A medida que se van ajustando los pesos de la red con el paso de las épocas, se empiezan a perfilar formas borrosas. Ya no es ruido aleatorio, sino que se parece más a una posible imagen, como las que vemos aquí correspondientes a las épocas 12 y 13")
+        st.image("imagenesIMAGEN/ganMedium.png", use_column_width=True)
+        st.write("Según avanza el entrenamiento esperamos que la calidad mejore bastante, acercandonos a imágenes que parezcan relativamente reales. Sin embargo, parece que llega a un punto donde el generador se estanca y no puede mejorar casi. Llegamos al final del entrenamiento con unas imágenes similares a las que nos encontramos en las épocas 12 y 13:")
+        st.image("imagenesIMAGEN/ganEnd.png", use_column_width=True)
+        st.write("El decepcionante resultado obtenido por la GAN se debe a la gran diversidad de las imágenes usadas para el entrenamiento, que hace que el generador se confunda constantemente y no pueda aprender a generar imágenes reales. Una posible solución sería encontrar un dataset grande de imágenes deportivas más parecidas entre sí.")
+    if img == "Clasificador":    
+        st.header("Clasificación de imágenes")
+        st.write("Hemos creado una funcionalidad que permite al usuario subir una imagen y te devuelve el deporte al que se corresponde. Para ello presentamos 2 modelos distintos: el primero es un modelo from scratch que implementa una CNN mientras que el segundo utiliza Transfer Learning.")
+        st.write("Para cada modelo primero hay una pequeña explicación de cada modelo y al final del todo existe la posibilidad de hacer una prueba pulsando el botón del final de la página")
+        st.write("Para realizar una prueba, elige una de las 2 opciones y sube una imagen en formato JPEG")
+        modelos = ["CNN from scratch", "Transfer Learning"]
+        modelo_seleccionado = st.radio("Selecciona un modelo:", modelos)
+        uploaded_file = st.file_uploader("Elige una imagen...", type=["jpg", "png"], help='Arrastra una imagen o haz clic para seleccionarla')  
+        if uploaded_file is not None:
+            image = Image.open(uploaded_file)
+            st.image(image, caption='Imagen cargada', use_column_width=True)
+        clases = ['hockey', 'tennis', 'baseball', 'swimming', 'polo', 'basketball', 'formula 1 racing', 'boxing', 'football', 'bowling']
+        if modelo_seleccionado == "CNN from scratch":
+            opcion_seleccionada = st.selectbox(
+            'Seleccione el tipo de imagen que va a introducir:',
+            clases
+        )
+            st.write("La CNN toma como entrada imágenes de tamaño 224x224x3 y utiliza 4 capas para extraer features,todas con filtros de 3x3. El número de filtros utilizados en cada capa es respectivamente: 32,100,64 y 128. Después de cada capa de convolución con activación RELU, se utiliza una capa de MaxPooling para reducir la dimensionalidad espacial de la salida. Además se incorporan capas de Dropout para evitar el sobreajuste del modelo. Finalmente, se aplana la salida y se conecta a dos fully connected layers,con una capa de salida con activación softmax para generar las probabilidades de pertenencia a cada una de las 10 clases.")
+            st.write("Para el caso de la CNN, como se ha mencionado previamente únicamente se han seleccionado 10 deportes, por ello únicamente se puede elegir entre esos deportes. Esto se ha hecho así para que sea posible el entrenamiento y un acierto razonable.")
+            st.write("Para entrenar la CNN se ha utilizado una herramienta conocida como optuna. Como los recursos de los que se dispone para entrenar y optimizar son limitados. En la etapa de optimización se ha buscado únicamente los parámetros del número de filtros de la 2 capa convolucional y el número de neuronas de la primera capa densa. Los valores obtenidos son: Número de filtros: 100, Número de neuronas: 233")
+            st.write("El código de la red finalmente sería el siguiente:")
+            st.code("""
+                    model = Sequential()
+        model.add(Conv2D(input_shape=(224,224,3), filters=32, kernel_size=(3,3), padding="same", activation="relu"))
+        model.add(Conv2D(filters=100, kernel_size=(3, 3), padding="same", activation="relu"))
+        model.add(MaxPool2D(pool_size=(2, 2), strides=(2, 2)))
+        model.add(Dropout(0.25))
 
-            if opcion_seleccionada == res:
-                st.success("¡Correcto!")
-                st.write(f"Predicción: {res} | imagen introducida: {opcion_seleccionada}", unsafe_allow_html=True)
-            else:
-                st.error("Incorrecto")
-                st.write(f"Predicción: {res} | imagen introducida: {opcion_seleccionada}", unsafe_allow_html=True)
-    if modelo_seleccionado == "Transfer Learning":
-        directorio = 'IMAGEN/data/train'
-        carpetas = [nombre for nombre in os.listdir(directorio) if os.path.isdir(os.path.join(directorio, nombre))]
-        carpetas.sort()
-        opcion_seleccionada = st.selectbox(
-        'Seleccione el tipo de imagen que va a introducir:',
-        carpetas
-    )           
-        st.write("En este caso hemos utilizado como modelo base la red neuronal EfficientNetB0, con los pesos de Imagenet. Descongelamos las últimas dos capas del modelo base y añadimos el clasificador al final. A continuación reentrenamos el modelo con nuestro dataset de deportes buscando mejorar la accuracy.")
-        st.write("Vamos a comentar los resultados obtenidos durante el entrenamiento con el modelo. En este caso sí hemos podido usar las 100 clases porque partíamos de un modelo base muy complejo que hemos adaptado a nuestras necesidades")
-        st.write("los resultados obtenidos con el modelo en la fase de entrenamiento son los siguientes:")
-        st.image("imagenesIMAGEN/grafiacasTransfer.png", use_column_width=True)
-        st.write("La rápida disminución de la pérdida de entrenamiento indica que el modelo aprende bien. La pérdida de validación se mantiene estable, lo que sugiere que el modelo generaliza bien, aunque el ligero aumento al final podría ser un signo de sobreajuste. El modelo muestra un rendimiento consistente con una alta precisión tanto en el conjunto de entrenamiento como en el de validación.")
-        st.write("Vamos a analizar la precisión para las diferentes clases en test. Como son 100 deportes el resumen es largo, por ello se ha dividido en 3 imágenes. Si la visualiación es complicada, se puede ampliar la imagen en la esquina superior derecha de cada una.")
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            st.image("imagenesIMAGEN/testLearning1.png", use_column_width=True)
-        with col2:
-            st.image("imagenesIMAGEN/testLearning2.png", use_column_width=True)
-        with col3:
-            st.image("imagenesIMAGEN/testLearning3.png", use_column_width=True)
-        st.write("El modelo logra un rendimiento global sobresaliente, con una precisión general del 97% y un promedio ponderado de F1-score del 96%. Algunas clases como basketball y trapeze presentan un menor rendimiento, posiblemente debido a la limitada cantidad de datos de entrenamiento. La mayoría de las clases tienen un rendimiento perfecto, lo que sugiere que el modelo puede diferenciar con precisión entre la mayoría de las categorías. El modelo logra una alta precisión y recall en la clasificación de la mayoría de las clases, con un promedio ponderado de F1-score del 96%, indicando un excelente rendimiento.")
-        st.write("PULSAR EL BOTÓN DE DEBAJO PARA PROBAR EL CLASIFICADOR CON TRANSFER LEARNING")
-        btn_gen = st.button("Clasificar Imagen con el modelo de Transfer Learning")
-        if btn_gen:
-            with st.spinner(text="Clasificando la imagen"):
-                res = clasificar_imagen_transfer_learning(image, transfer_model,carpetas)
-            if opcion_seleccionada == res:
-                st.success("¡Correcto!")
-                st.write(f"Predicción: {res} | imagen introducida: {opcion_seleccionada}", unsafe_allow_html=True)
-            else:
-                st.error("Incorrecto")
-                st.write(f"Predicción: {res} | imagen introducida: {opcion_seleccionada}", unsafe_allow_html=True)
+        model.add(Conv2D(filters=64, kernel_size=(3, 3), padding="same", activation="relu"))
+        model.add(MaxPool2D(pool_size=(2, 2), strides=(2, 2)))
+        model.add(Dropout(0.25))
+
+        model.add(Conv2D(filters=128, kernel_size=(3, 3), padding="same", activation="relu"))
+        model.add(MaxPool2D(pool_size=(2, 2), strides=(2, 2)))
+        model.add(Dropout(0.25))
+
+        model.add(Flatten())
+
+        model.add(Dense(units=233, activation="relu"))
+        model.add(Dropout(0.5))
+        model.add(Dense(units=10, activation="softmax"))  # 10 unidades para salida, por las clases
+
+        model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+        return model
+                    """)
+            st.write("El summary del modelo para ver el número de parámetros y de un vistazo las capas es:")
+            st.image("imagenesIMAGEN/model_summary.png", use_column_width=True)
+            st.write("Para terminar con la explicación, los resultados obtenidos con el modelo en la fase de entrenamiento son los siguientes:")
+            st.image("imagenesIMAGEN\grafiacasScratch.png", use_column_width=True)
+            st.write("En las gráficas se puede apreciar el entrenamiento del modelo a lo largo de las épocas. Cabe destacar una divergencia significativa entre la precisión y la loss de entrenamiento (líneas azules) frente a la precisión y la loss de validación (líneas rojas). El modelo alcanza una alta precisión en los datos de entrenamiento, pero la fluctuante y decreciente precisión en los datos de validación, junto con la divergencia en las curvas de pérdida, sugieren un claro caso de sobreajuste.")
+            st.write("Vamos a analizar la precisión para las diferentes clases en test")
+            st.image("imagenesIMAGEN/testScratch.png", use_column_width=True)
+            st.write("El informe de clasificación y las gráficas de precisión y loss indican que el modelo presenta un caso claro de sobreajuste, donde la precisión en los datos de entrenamiento es alta, pero la precisión en validación fluctúa y se mantiene baja, especialmente para clases como bowling y tennis. La discrepancia entre precisión y recall para algunas categorías refleja problemas de desequilibrio y sesgo en los datos. Este clasificador tiene un desbalanceo en la precisión entre clases. Entendemos que es así porque es un modelo sencillo, únicamente para probar a realizar el modelo from scratch y pegarnos con ello.")
+            st.write("PULSAR EL BOTÓN DE DEBAJO PARA PROBAR EL CLASIFICADOR FROM SCRATCH")
+            btn_gen = st.button("Clasificar Imagen con el modelo from scratch")
+            if btn_gen:
+                if 'image' not in locals():
+                    st.warning("¡Cuidado! Tiene que subir primero la imagen a clasificar.")
+                else:
+                    with st.spinner(text="Clasificando la imagen"):
+                        res = clasificar_imagen_cnn(image, scratch_model)
+                    if opcion_seleccionada == res:
+                        st.success("¡Correcto!")
+                        st.write(f"Predicción: {res} | imagen introducida: {opcion_seleccionada}", unsafe_allow_html=True)
+                    else:
+                        st.error("Incorrecto")
+                        st.write(f"Predicción: {res} | imagen introducida: {opcion_seleccionada}", unsafe_allow_html=True)
+        if modelo_seleccionado == "Transfer Learning":
+            directorio = 'IMAGEN/data/train'
+            carpetas = [nombre for nombre in os.listdir(directorio) if os.path.isdir(os.path.join(directorio, nombre))]
+            carpetas.sort()
+            opcion_seleccionada = st.selectbox(
+            'Seleccione el tipo de imagen que va a introducir:',
+            carpetas
+        )           
+            st.write("En este caso hemos utilizado como modelo base la red neuronal EfficientNetB0, con los pesos de Imagenet. Descongelamos las últimas dos capas del modelo base y añadimos el clasificador al final. A continuación reentrenamos el modelo con nuestro dataset de deportes buscando mejorar la accuracy.")
+            st.write("Vamos a comentar los resultados obtenidos durante el entrenamiento con el modelo. En este caso sí hemos podido usar las 100 clases porque partíamos de un modelo base muy complejo que hemos adaptado a nuestras necesidades")
+            st.write("los resultados obtenidos con el modelo en la fase de entrenamiento son los siguientes:")
+            st.image("imagenesIMAGEN/grafiacasTransfer.png", use_column_width=True)
+            st.write("La rápida disminución de la pérdida de entrenamiento indica que el modelo aprende bien. La pérdida de validación se mantiene estable, lo que sugiere que el modelo generaliza bien, aunque el ligero aumento al final podría ser un signo de sobreajuste. El modelo muestra un rendimiento consistente con una alta precisión tanto en el conjunto de entrenamiento como en el de validación.")
+            st.write("Vamos a analizar la precisión para las diferentes clases en test. Como son 100 deportes el resumen es largo, por ello se ha dividido en 3 imágenes. Si la visualiación es complicada, se puede ampliar la imagen en la esquina superior derecha de cada una.")
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                st.image("imagenesIMAGEN/testLearning1.png", use_column_width=True)
+            with col2:
+                st.image("imagenesIMAGEN/testLearning2.png", use_column_width=True)
+            with col3:
+                st.image("imagenesIMAGEN/testLearning3.png", use_column_width=True)
+            st.write("El modelo logra un rendimiento global sobresaliente, con una precisión general del 97% y un promedio ponderado de F1-score del 96%. Algunas clases como basketball y trapeze presentan un menor rendimiento, posiblemente debido a la limitada cantidad de datos de entrenamiento. La mayoría de las clases tienen un rendimiento perfecto, lo que sugiere que el modelo puede diferenciar con precisión entre la mayoría de las categorías. El modelo logra una alta precisión y recall en la clasificación de la mayoría de las clases, con un promedio ponderado de F1-score del 96%, indicando un excelente rendimiento.")
+            st.write("PULSAR EL BOTÓN DE DEBAJO PARA PROBAR EL CLASIFICADOR CON TRANSFER LEARNING")
+            btn_gen = st.button("Clasificar Imagen con el modelo de Transfer Learning")
+            if btn_gen:
+                if 'image' not in locals():
+                    st.warning("¡Cuidado! Tiene que subir primero la imagen a clasificar.")
+                else:
+                    with st.spinner(text="Clasificando la imagen"):
+                        res = clasificar_imagen_transfer_learning(image, transfer_model,carpetas)
+                    if opcion_seleccionada == res:
+                        st.success("¡Correcto!")
+                        st.write(f"Predicción: {res} | imagen introducida: {opcion_seleccionada}", unsafe_allow_html=True)
+                    else:
+                        st.error("Incorrecto")
+                        st.write(f"Predicción: {res} | imagen introducida: {opcion_seleccionada}", unsafe_allow_html=True)
 
 
                 
