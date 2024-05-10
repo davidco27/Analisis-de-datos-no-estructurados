@@ -7,13 +7,9 @@ from nltk.translate.bleu_score import corpus_bleu
 from nltk.translate.bleu_score import SmoothingFunction
 from nltk.tokenize import word_tokenize
 from keras.models import load_model
-from tensorflow.keras.layers import Input,Resizing, Rescaling
-from tensorflow.keras.models import Model,Sequential
 from utility_functions import decode_sequence
-from tensorflow.keras.preprocessing.text import text_to_word_sequence
 from torchvision import transforms
 from tensorflow.keras.preprocessing import image
-from tensorflow.keras.applications.resnet50 import preprocess_input
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 def search_news(df,request):
