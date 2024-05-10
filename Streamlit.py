@@ -76,31 +76,59 @@ def load_resources():
 
 model, tokenizer,summarizer,scratch_model,transfer_model = load_resources()
 folders_in_directory = ["Texto","Imagen"]
-folders_in_directory.insert(0, "Sin selección")
+folders_in_directory.insert(0, "Inicio")
 selected_folder = st.sidebar.selectbox("Selecciona un entorno", folders_in_directory)
-if selected_folder == "Sin selección":
+if selected_folder == "Inicio":
+    _,col_img,_,_,_ = st.columns(5)
+    with col_img:
+        st.image("imagenesDesign\logo-icai.png", width = 300)
     st.title("Práctica final No estructurados")
     st.subheader("Javier Álvarez Martínez y David Cocero Quintanilla")
     st.divider()
     st.write("Presentamos aquí nuestra interfaz para permitir a los usuarios explorar nuestro trabajo final de la asignatura que se divide en 2 componentes principales: Texto e Imagen. Para empezar seleccione una de las 2 opciones que aparecen en el desplegable de la izquierda.")
+    st.header("ÍNDICE")
+    st.write("Mostramos aquí las implementaciones para los dos tipos de datos")
+    col1_ini, col2_ini = st.columns(2)
+    with(col1_ini):
+        st.subheader("TEXTO")
+        st.markdown("""
+* EDA (Análisis exploratorio del dataset)
+* Generador de resúmenes:
+  * Encoder - Decoder from scratch
+  * Modelo summarization Hugging Face
+  * Few Shot Modelo generativo Hugging Face
+* Clasificador de resúmenes por temas
+* Buscador de noticias por palabras clave
+""")
+    with (col2_ini):
+        st.subheader("IMAGEN")
+        st.markdown("""
+* Clasificador de imágenes deportivas:
+  * Red convolucional from scratch
+  * Modelo de transfer learning
+* Generador de imágenes (GAN)
+""")
 if selected_folder == "Texto":
     st.title("TEXTO")
     st.subheader("Dataset de noticias de la BBC")
-    st.write("El conjunto de datos para la generación de resúmenes de textos consta de cuatrocientos diecisiete artículos de 5 temáticas diferentes de la BBC de 2004 a 2005 en la carpeta “News Articles” . Para cada artículo, se proporciona el resumen generado por una persona para cada noticia. Las temáticas que tiene el dataset son: business, entertainment, politics, sport y tech.")
-    st.write("En esta sección de texto se dispone de un análisis exploratorio del dataset, 3 modelos para la generación de resúmenesy 2 modelos de clasificación de textos")
+    st.write("El conjunto de datos para la generación de resúmenes de textos consta de 2225 artículos de 5 temáticas diferentes de la BBC de 2004 a 2005 en la carpeta “News Articles” . Para cada artículo, se proporciona el resumen generado por una persona para cada noticia. Las temáticas que tiene el dataset son: business, entertainment, politics, sport y tech.")
+    st.write("En esta sección de texto se dispone de un análisis exploratorio del dataset, 3 modelos para la generación de resúmenes y 1 modelo de clasificación de textos")
     analisis_exploratorio = ["EDA","Modelos","Clasificador"]
-    eda = st.radio("Elige si quieres ver un análisis exploratorio del dataset, pasar a probar los modelos o probar el clasificador de resúmenes. (En cualquier momento puede pulsar el otro botón para ver otra sección)", analisis_exploratorio)
+    eda = st.radio("Elige si quieres ver un análisis exploratorio del dataset, pasar a probar los modelos o probar el clasificador de resúmenes. (En cualquier momento puede pulsar otro botón para ver otra sección)", analisis_exploratorio)
     if eda == "EDA":
         st.divider()
         st.header("Análisis exploratorio del dataset (EDA)")
         st.write("El análisis exploratorio de datos es una metodología que permite entender la estructura, patrones y relaciones en un conjunto de datos sin hacer suposiciones previas. Ayuda a identificar tendencias, anomalías y a formular hipótesis para investigaciones más detalladas.")
         st.write("En esta sección, únicamente se hará un recorrido por el análisis exploratorio que hemos realizado, no se incluirá código, úncamente información que consideramos útil de cara a nuestro problema. Además, al final de la sección se muestra un buscador de noticias por palabras clave basado en TF-IDF")
         st.subheader("Número de artículos por categoría")
-        st.image("imagenesEDA/articulos_por_categoria.png", caption="En la imagen anterior se puede ver el número de artículos dividido por categoría. Este dato nos ha parecido reseñable ya que de cara a nuestro clasificador, tener más cantidad de resúmenes/artículos puede ser importante de cara a una mejor clasificación.", use_column_width=True)
+        st.image("imagenesEDA/articulos_por_categoria.png", use_column_width=True)
+        st.write("En la imagen anterior se puede ver el número de artículos dividido por categoría. Este dato nos ha parecido reseñable ya que de cara a nuestro clasificador, tener más cantidad de resúmenes/artículos puede ser importante de cara a una mejor clasificación.")
         st.subheader("Número de palabras medias de artículo por categoría")
-        st.image("imagenesEDA/palabras_media_noticias.png", caption="Esta imagen es interesante ya que nos dice que noticias esperan un resumen más largo para que de esa forma para los resúmenes que generemos puedan ser de una longitud similar a los existentes", use_column_width=True)
+        st.image("imagenesEDA/palabras_media_noticias.png", use_column_width=True)
+        st.write("Esta imagen es interesante ya que nos dice que noticias esperan un resumen más largo para que de esa forma para los resúmenes que generemos puedan ser de una longitud similar a los existentes")
         st.subheader("Número de palabras medias de resúmenes por categoría")
-        st.image("imagenesEDA/palabras_media_resumenes.png", caption= "Como hemos comentado nos es muy relevatne poder saber en media cuántas palabras tienen nuestros resúmenes para poder generarlos similar, por ello en la anterior podemos ver de un vistazo el número de palabras medio de los resúmenes por categoría", use_column_width=True)
+        st.image("imagenesEDA/palabras_media_resumenes.png", use_column_width=True)
+        st.write("Como hemos comentado nos es muy relevatne poder saber en media cuántas palabras tienen nuestros resúmenes para poder generarlos similar, por ello en la anterior podemos ver de un vistazo el número de palabras medio de los resúmenes por categoría")
         st.subheader("Nube de palabras de cada cateogría")
         st.write("Estas nubes de palabras que se ven a continuación, son interesantes para poder saber que tipo de noticias obtendremos buscando por esas palabras. Más adelante, aparece un buscador de noticias usando TF-IDF que se podrá probar y para el que puede ser de ayuda estas nubes de palabras")
         st.image("imagenesEDA/business_wordcloud.png", use_column_width=True)
@@ -115,7 +143,7 @@ La frecuencia del término en el documento (TF), lo que indica su importancia re
 La inversa de la frecuencia del término en el conjunto de documentos (IDF), lo que reduce el peso de los términos comunes en todo el conjunto de documentos.
 Esto permite representar documentos como vectores numéricos, donde los términos más relevantes tienen un peso más alto, lo que es útil para tareas como la clasificación de textos y la recuperación de información.""")
         df = pd.read_csv('TEXTO/news_df.csv')
-        request = st.text_input("Introducir de 1 a 5 palabras clave")
+        request = st.text_input("Introducir de 1 a 3 palabras clave separadas por un espacio entre cada una")
         btn_search = st.button("Buscar noticias")
         if btn_search:
               with st.spinner(text="Seleccionando las noticias..."):
@@ -133,13 +161,20 @@ Esto permite representar documentos como vectores numéricos, donde los término
         st.image("imagenesEDA/TestClasificacion_HF.png", use_column_width=True)
         st.write("Las categorías business, entertainment y sport alcanzan una precisión y f1-score perfectos o casi perfectos (0.97-1.00). Politics tiene una precisión ligeramente más baja (0.83) pero compensa con un recall perfecto (1.00). Tech presenta una ligera caída en recall (0.88). En general, el modelo demuestra un alto nivel de consistencia con un f1-score promedio de 0.96.")
         rsm = st.text_area("Introduce el resumen para clasificar")
+        categorias = ["business","entertainment","politics","sport","tech"]
+        cat = st.selectbox("Selecciona la categoria de la noticia", categorias)
         st.write("Para clasificar el resumen previamente introducido pulse el siguiente botón:")
         bt = st.button("CLASIFICAR")
         if bt:
             modelo, vectorizer= joblib.load('TEXTO/news_class_nb.pkl')
             texto_vectorizado = vectorizer.transform([rsm])
             categoria_predicha = modelo.predict(texto_vectorizado)
-            st.write("La categoría predicha es:", categoria_predicha[0])
+            if cat == categoria_predicha[0]:
+                st.success("¡Correcto!")
+                st.write(f"Predicción: {categoria_predicha[0]} | categoría introducida: {cat}", unsafe_allow_html=True)
+            else:
+                st.error("Incorrecto")
+                st.write(f"Predicción: {categoria_predicha[0]} | categoría introducida: {cat}", unsafe_allow_html=True)
 
     if eda == "Modelos":
         st.divider()
@@ -148,16 +183,16 @@ Esto permite representar documentos como vectores numéricos, donde los término
         st.write("Para medir la eficiencia de los resumenes hemos utilizado BLEU. BLEU es una métrica de evaluación de la calidad de traducción automática que compara un texto generado con uno de referencia, calculando la precisión de las n-gramas coincidentes. Cuanto más alto es el puntaje BLEU, más similar es el texto generado al texto de referencia.")
         modelos = ["Encoder-Decoder", "Hugging Face","Few-shot"]
         modelo_seleccionado = st.radio("Selecciona un modelo:", modelos)
-        st.write("El resumen no puede ser más largo de 200 palabras ")
         txt = st.text_area(
         "Pega aquí la noticia a resumir (tiene que ser en inglés)",height=500
         )
+        st.write("El resumen no puede ser más largo de 200 palabras ")
         rsm = st.text_area("Introduce el resumen ")
         st.write(f"La longitud de la noticia es de {len(txt.split())} palabras y la de tu resumen de {len(rsm.split())} " )
         categorias = ["business","entertainment","politics","sport","tech"]
         cat = st.selectbox("Selecciona la categoria de la noticia", categorias)
         if modelo_seleccionado == "Hugging Face":
-            st.write("En este primer modelo de texto, se ha utilizado un modelo preentrenado de HuggingFace preparado para resumir. Para seleccionar la longitud de los resúmenes lo que hemos hecho es utilizar como máximo las longitudes medias de resúmenes que teníamos en los datos de partida y como valor mínimo de longitud hemos usado el máximo menos 30 aproximadamente.")
+            st.write("En este modelo de texto, se ha utilizado un modelo preentrenado de HuggingFace preparado para resumir. Para seleccionar la longitud de los resúmenes lo que hemos hecho es utilizar como máximo las longitudes medias de resúmenes que teníamos en los datos de partida y como valor mínimo de longitud hemos usado el máximo menos 30 aproximadamente.")
             st.write("""El modelo "facebook/bart-large-cnn" es parte de la familia BART (BART: Bidirectional and Auto-Regressive Transformers), desarrollado por Facebook AI. BART es un modelo basado en la arquitectura Transformer que ha demostrado ser efectivo en tareas de generación de lenguaje, traducción, resumen de texto...""")
             st.write("""BART es un modelo transformer encoder-encoder (seq2seq) con un encoder bidireccional (similar a BERT) y un decoder autoregresivo (similar a GPT). BART se pre-entrena mediante la corrupción de texto con una función de ruido arbitraria y el aprendizaje de un modelo para reconstruir el texto original. """)
             btn_gen = st.button("Generar Resumen con modelo de Hugging Face")
@@ -176,7 +211,7 @@ Esto permite representar documentos como vectores numéricos, donde los término
             st.write("En este modelo de generación de resúmenes se utilizado un modelo de ámbito general al que se prepara para generar resúmenes.")
             st.write(""" El modelo elegido es: "google/flan-t5-base", un modelo de lenguaje basado en la arquitectura T5, desarrollado por Google, con un tamaño de base. Este modelo se puede utilizar para una amplia gama de tareas de procesamiento de lenguaje natural, como traducción, generación de texto, respuesta a preguntas, resumen de texto, entre otras. En este caso lo que se utiliza es el modelo de base y mediante prompt se le hace un few shot.""")
             st.write("Few-shot learning es un enfoque de aprendizaje automático donde un modelo se entrena con solo un pequeño número de ejemplos de entrenamiento por clase o tarea, lo que le permite generalizar a nuevas clases o tareas con un número limitado de ejemplos de prueba.")
-            st.write("El ejemplo de prompt sería como el siguiente:")
+            st.write("El ejemplo de prompt sería como el siguiente (En las pruebas hemos usado una categoría definida, para la app se ha generalizado y el prompt depende de la categoría de artículo):")
             st.code(""" You are an expert in news summarization.
 News:
 
@@ -232,7 +267,7 @@ Summary: """)
             btn_gen = st.button("Generar Resumen con Modelo de Few-Shot")
             if btn_gen:
                 with st.spinner(text="Generando el resumen..."):
-                    rsm_gen,score, error = generar_resumen_few_shot(tokenizer,model,txt,rsm)
+                    rsm_gen,score, error = generar_resumen_few_shot(tokenizer,model,txt,rsm,cat)
                 if error:
                     st.warning("¡Cuidado! Introduzca una noticia y un resumen para continuar.")
                 else:
@@ -299,10 +334,10 @@ decoder_outputs = decoder_dense(decoder_outputs)
 if selected_folder == "Imagen":
     st.title("IMAGEN")
     st.subheader("Dataset de imágenes de 100 deportes")
-    st.write("Es una colección de imágenes que cubren 100 deportes diferentes. Las imágenes están en formato jpg con dimensiones de 224x224x3. Los datos están separados en directorios de entrenamiento, prueba y validación. Además, se incluye un archivo CSV para aquellos que deseen usarlo para crear sus propios conjuntos de datos de entrenamiento, prueba y validación.")
+    st.write("Es una colección de imágenes que cubren 100 deportes diferentes. Las imágenes están en formato jpg con dimensiones de 224x224x3. Los datos están separados en directorios de entrenamiento, prueba y validación.")
     st.divider()
     img_pos = ["Generador","Clasificador"]
-    img = st.radio("Elige si quieres probar el generador de imágenes o el clasificador de imágenes por deporte (En cualquier momento puede pulsar el otro botón para ver otra sección)", img_pos)
+    img = st.radio("Elige si quieres probar el generador de imágenes o el clasificador de imágenes por deporte. (En cualquier momento puede pulsar otro botón para ver la otra sección)", img_pos)
     if img == "Generador":
         st.header("Generador de imágenes con GAN")
         st.write("""Una de las features que hemos implementado con este dataset es la generación de imágenes artificiales utilizando una red Generativa Adversaria (GAN).
@@ -321,16 +356,29 @@ if selected_folder == "Imagen":
     if img == "Clasificador":    
         st.header("Clasificación de imágenes")
         st.write("Hemos creado una funcionalidad que permite al usuario subir una imagen y te devuelve el deporte al que se corresponde. Para ello presentamos 2 modelos distintos: el primero es un modelo from scratch que implementa una CNN mientras que el segundo utiliza Transfer Learning.")
-        st.write("Para cada modelo primero hay una pequeña explicación de cada modelo y al final del todo existe la posibilidad de hacer una prueba pulsando el botón del final de la página")
+        st.write("Para cada modelo primero hay una parte para subir una imagen y la categoría de deporte a la que pertence, a continuación, una pequeña explicación y al final del todo existe la posibilidad de hacer una prueba.")
         st.write("Para realizar una prueba, elige una de las 2 opciones y sube una imagen en formato JPEG")
         modelos = ["CNN from scratch", "Transfer Learning"]
         modelo_seleccionado = st.radio("Selecciona un modelo:", modelos)
-        uploaded_file = st.file_uploader("Elige una imagen...", type=["jpg", "png"], help='Arrastra una imagen o haz clic para seleccionarla')  
-        if uploaded_file is not None:
-            image = Image.open(uploaded_file)
-            st.image(image, caption='Imagen cargada', use_column_width=True)
-        clases = ['hockey', 'tennis', 'baseball', 'swimming', 'polo', 'basketball', 'formula 1 racing', 'boxing', 'football', 'bowling']
         if modelo_seleccionado == "CNN from scratch":
+            st.write("Para el modelo from scratch, debido a su complejidad y a la capacidad de cómputo requerida hemos decidido limitarlo a 10 deportes que son:")
+            st.markdown("""
+            * hockey
+            * tennis
+            * baseball
+            * swimming
+            * polo
+            * basketball
+            * formula 1 racing
+            * boxing
+            * football
+            * bowling
+            """)
+            uploaded_file = st.file_uploader("Elige una imagen...", type=["jpg", "png"], help='Arrastra una imagen o haz clic para seleccionarla')  
+            if uploaded_file is not None:
+                image = Image.open(uploaded_file)
+                st.image(image, caption='Imagen cargada', use_column_width=True)
+            clases = ['hockey', 'tennis', 'baseball', 'swimming', 'polo', 'basketball', 'formula 1 racing', 'boxing', 'football', 'bowling']
             opcion_seleccionada = st.selectbox(
             'Seleccione el tipo de imagen que va a introducir:',
             clases
@@ -386,6 +434,10 @@ if selected_folder == "Imagen":
                         st.error("Incorrecto")
                         st.write(f"Predicción: {res} | imagen introducida: {opcion_seleccionada}", unsafe_allow_html=True)
         if modelo_seleccionado == "Transfer Learning":
+            uploaded_file = st.file_uploader("Elige una imagen...", type=["jpg", "png"], help='Arrastra una imagen o haz clic para seleccionarla')  
+            if uploaded_file is not None:
+                image = Image.open(uploaded_file)
+                st.image(image, caption='Imagen cargada', use_column_width=True)
             directorio = 'IMAGEN/data/train'
             carpetas = [nombre for nombre in os.listdir(directorio) if os.path.isdir(os.path.join(directorio, nombre))]
             carpetas.sort()

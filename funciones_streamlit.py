@@ -30,7 +30,7 @@ def search_news(df,request):
     request_transform = vector.transform([request])
     similarity = np.dot(request_transform,np.transpose(tfidf))
     x = np.array(similarity.toarray()[0])
-    indices=np.argsort(x)[-5:][::-1]
+    indices=np.argsort(x)[-3:][::-1]
     return df.loc[indices][["category","content"]]
 
 
@@ -101,42 +101,29 @@ def generar_resumen(summarizer,content,category,summmary_ref):
         
     return resumen_gen,score, error
 
-def generar_resumen_few_shot(tokenizer,model,content,summmary_ref):
+def generar_resumen_few_shot(tokenizer,model,content,summmary_ref,category):
     error = 0
     score = 0
-
+    with open(f'TEXTO/data/News Articles/{category}/083.txt', 'r') as file:
+        News1 = file.read()
+    with open(f'TEXTO/data/Summaries/{category}/083.txt', 'r') as file:
+        Summary1 = file.read()
+    with open(f'TEXTO/data/News Articles/{category}/112.txt', 'r') as file:
+        News2 = file.read()
+    with open(f'TEXTO/data/Summaries/{category}/112.txt', 'r') as file:
+        Summary2 = file.read()
+    
     try:
         prompt = f"""You are an expert in news summarization.
     News:
-
-    BMW to recall faulty diesel cars
-
-    BMW is to recall all cars equipped with a faulty diesel fuel-injection pump supplied by parts maker Robert Bosch.
-
-    The faulty part does not represent a safety risk and the recall only affects pumps made in December and January. BMW said that it was too early to say how many cars were affected or how much the recall would cost. The German company is to extend a planned production break at one of its plants due to the faulty Bosch part. The Dingolfing site will now be closed all next week instead of for just two days. The additional three-day stoppage will mean a production loss of up to 3,600 vehicles, BMW said, adding that it was confident it could make up the numbers later.
-
-    Bosch has stopped production of the part but expects to restart by 2 February. The faulty component does not represent a safety risk but causes the motor to stall after a significant amount of mileage. When asked if BMW would be seeking compensation from Bosch, the carmaker's chief executive Helmut Panke said: "we will first solve the problem before talking about who will pay". Audi and Mercedes Benz were also supplied with the defective diesel fuel-injection pumps but neither of them have to recall any vehicles. A spokesman for DaimlerChrysler, parent company of Mercedes Benz, said it will however have to halt some production. It is to close the Mercedes factory in Sindelfingen on Monday and Tuesday. Audi said it had been hit by production bottlenecks, due to a shortage of unaffected Bosch parts.
-
-
+    {News1}
     Summary:
-    BMW is to recall all cars equipped with a faulty diesel fuel-injection pump supplied by parts maker Robert Bosch.The German company is to extend a planned production break at one of its plants due to the faulty Bosch part.The faulty part does not represent a safety risk and the recall only affects pumps made in December and January.Audi said it had been hit by production bottlenecks, due to a shortage of unaffected Bosch parts.A spokesman for DaimlerChrysler, parent company of Mercedes Benz, said it will however have to halt some production.Audi and Mercedes Benz were also supplied with the defective diesel fuel-injection pumps but neither of them have to recall any vehicles.
+    {Summary1}
 
-
-    You are an expert in news summarization.
     News:
-
-    US gives foreign firms extra time
-
-    Foreign firms have been given an extra year to meet tough new corporate governance regulations imposed by the US stock market watchdog.
-
-    The Securities and Exchange Commission has extended the deadline to get in line with the rules until 15 July 2006. Many foreign firms had protested that the SEC was imposing an unfair burden. The new rules are the result of the Sarbanes-Oxley Act, part of the US clean-up after corporate scandals such as Enron and Worldcom. Section 404 of the Sox Act, as the legislation is nicknamed, calls for all firms to certify that their financial reporting is in line with US rules. Big US firms already have to meet the requirements, but smaller ones and foreign-based firms which list their shares on US stock markets originally had until the middle of this year.
-
-    Over the past few months, delegations of European and other business leaders have been heading to the SEC's Washington DC headquarters to protest. They say the burden is too expensive and the timescale too short and some, particularly the UK's CBI, warned that companies would choose to let their US listings drop rather than get in line with section 404. The latest delegation from the CBI met SEC officials on Wednesday, just before the decision to relax the deadline was announced. "I think this signifies a change of heart at the SEC," CBI director-general Sir Digby Jones told the BBC's Today programme. "They have been listening to us and to many overseas companies, who have reminded America what globalisation really means: that they can't make these rules in isolation." The SEC said it had taken into consideration the fact that foreign companies were already working to meet more onerous financial reporting rules in their home countries. The European Union, in particular, was imposing new international financial reporting standards in 2005, it noted. "I don't underestimate the effort (compliance) will require... but this extension will provide additional time for those issuers to take a good hard look at their internal controls," said Donald Nicolaisen, the SEC's chief accountant.
-
-
+    {News2}
     Summary:
-    Many foreign firms had protested that the SEC was imposing an unfair burden.The SEC said it had taken into consideration the fact that foreign companies were already working to meet more onerous financial reporting rules in their home countries.Section 404 of the Sox Act, as the legislation is nicknamed, calls for all firms to certify that their financial reporting is in line with US rules.Foreign firms have been given an extra year to meet tough new corporate governance regulations imposed by the US stock market watchdog.Big US firms already have to meet the requirements, but smaller ones and foreign-based firms which list their shares on US stock markets originally had until the middle of this year.The European Union, in particular, was imposing new international financial reporting standards in 2005, it noted.
-
+    {Summary2}
 
 
     News:
@@ -146,7 +133,8 @@ def generar_resumen_few_shot(tokenizer,model,content,summmary_ref):
         output = tokenizer.decode(
             model.generate(
                 inputs["input_ids"],
-                max_new_tokens=50,
+                max_new_tokens=200,
+                min_new_tokens=100,
             )[0], 
             skip_special_tokens=True
         )
