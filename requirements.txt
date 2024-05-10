@@ -10,3 +10,4 @@ torchvision == 0.17.1
 scikit-learn
 torch == 2.2.1 
 tf-keras
+tensorrt
