@@ -62,9 +62,10 @@ def create_transfer_model():
 
     model = Model(inputs=base_model.input, outputs=predictions)
     return model
+@st.cache_resource
 def load_resources():
     model_name='google/flan-t5-base'
-    model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
+    #model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
     summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
     tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=True)
     scratch_model = create_model()
