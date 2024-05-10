@@ -7,8 +7,6 @@ import numpy as np
 import streamlit as st
 import pandas as pd
 import ast
-import nltk
-nltk.download('punkt')
 import altair as alt
 import matplotlib.pyplot as plt
 from datetime import datetime

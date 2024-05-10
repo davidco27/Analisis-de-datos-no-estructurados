@@ -1,6 +1,5 @@
 import nltk
 import numpy as np
-nltk.download('punkt')
 import os
 import tensorflow as tf
 from nltk.translate.bleu_score import corpus_bleu
