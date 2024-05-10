@@ -16,8 +16,7 @@ from PIL import Image
 from keras.models import Sequential
 from transformers import pipeline
 from funciones_streamlit import generar_resumen,generar_resumen_few_shot,generar_resumen_lstm,clasificar_imagen_cnn,search_news,clasificar_imagen_transfer_learning
-from transformers import AutoModelForSeq2SeqLM
-from transformers import AutoTokenizer
+from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 from keras.layers import Dense,Flatten,Conv2D
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Input, Dense, Flatten, GlobalAveragePooling2D
@@ -65,7 +64,7 @@ def create_transfer_model():
 @st.cache_resource
 def load_resources():
     model_name='google/flan-t5-base'
-    #model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
+    model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
     summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
     tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=True)
     scratch_model = create_model()
