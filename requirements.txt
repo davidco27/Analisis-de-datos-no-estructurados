@@ -1,3 +1,4 @@
+streamlit == 1.32.2
 keras == 3.1.1
 tensorflow == 2.16.1
 matplotlib == 3.8.3
