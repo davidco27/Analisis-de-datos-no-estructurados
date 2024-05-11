@@ -1,4 +1,5 @@
 import nltk
+nltk.download('punkt')
 import numpy as np
 import os
 import tensorflow as tf
@@ -149,7 +150,6 @@ def generar_resumen_few_shot(tokenizer,model,content,summmary_ref,category):
     return resumen_gen,score, error
 
 def generar_resumen_lstm(content,summmary_ref):
-    error = 0
     score = 0
     try:
         encoder_model = load_model("TEXTO/encoder_model.h5")
@@ -164,5 +164,5 @@ def generar_resumen_lstm(content,summmary_ref):
     except Exception as e:
         error = e
         
-    return resumen_gen,score,error
+    return resumen_gen,score
     

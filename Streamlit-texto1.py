@@ -216,10 +216,11 @@ decoder_outputs = decoder_dense(decoder_outputs)
         st.write("Como se puede comprobar, la salida del modelo es una secuencia en la que se repite el mismo token una y otra vez. El motivo es que las secuencias de entrada son demasiado largas y complejas, además que para un entrenamiento desde cero se necesitan más de las aproximadamente 2000 muestras que tenemos. Esta arquitectura es bastante limitada en un problema así y no puede competir con los otros dos modelos de Hugging Face que presentamos.")
         btn_gen = st.button("Generar Resumen con Modelo from Scratch")
         if btn_gen:
-            with st.spinner(text="Generando el resumen..."):
-                rsm_gen,score, error = generar_resumen_lstm(txt,rsm)
-                st.write(error)
+            if len(txt) == 0  or len(rsm) == 0  :
                 st.warning("¡Cuidado! Introduzca una noticia y un resumen para continuar.")
+            else:
+                with st.spinner(text="Generando el resumen..."):
+                    rsm_gen,score = generar_resumen_lstm(txt,rsm)
                 st.subheader("Resultados")
                 st.markdown("***Resumen Generado***")
                 st.write(rsm_gen)
