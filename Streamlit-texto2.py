@@ -33,14 +33,14 @@ st.write("""El modelo "facebook/bart-large-cnn" es parte de la familia BART (BAR
 st.write("""BART es un modelo transformer encoder-encoder (seq2seq) con un encoder bidireccional (similar a BERT) y un decoder autoregresivo (similar a GPT). BART se pre-entrena mediante la corrupción de texto con una función de ruido arbitraria y el aprendizaje de un modelo para reconstruir el texto original. """)
 btn_gen = st.button("Generar Resumen con modelo de Hugging Face")
 if btn_gen:
-    with st.spinner(text="Generando el resumen..."):
-        rsm_gen,score, error = generar_resumen(summarizer,txt,cat,rsm)
-    if error:
+    if len(txt) == 0  or len(rsm) == 0:
         st.warning("¡Cuidado! Introduzca una noticia y un resumen para continuar.")
     else:
-        st.subheader("Resultados")
-        st.markdown("***Resumen Generado***")
-        st.write(rsm_gen)
-        st.markdown("***BLEU score obtenido***")
-        st.write(f"{score*100:.2f} %")
+        with st.spinner(text="Generando el resumen..."):
+            rsm_gen,score = generar_resumen(summarizer,txt,cat,rsm)
+            st.subheader("Resultados")
+            st.markdown("***Resumen Generado***")
+            st.write(rsm_gen)
+            st.markdown("***BLEU score obtenido***")
+            st.write(f"{score*100:.2f} %")
         
