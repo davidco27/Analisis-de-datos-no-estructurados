@@ -13,7 +13,7 @@ def load_resources():
     return summarizer
 
 summarizer = load_resources()
-st.sidebar.link_button(label="Inicio", url="https://no-estructurados-start.streamlit.app")
+st.sidebar.link_button(label="Inicio", url="https://no-estructurados-inicio.streamlit.app")
 st.sidebar.link_button(label="Imagen", url="https://no-estructurados-imagen.streamlit.app")
 
 st.header("Resumen de las noticias")
