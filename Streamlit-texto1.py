@@ -24,9 +24,11 @@ st.subheader("Dataset de noticias de la BBC")
 st.write("El conjunto de datos para la generación de resúmenes de textos consta de 2225 artículos de 5 temáticas diferentes de la BBC de 2004 a 2005 en la carpeta “News Articles” . Para cada artículo, se proporciona el resumen generado por una persona para cada noticia. Las temáticas que tiene el dataset son: business, entertainment, politics, sport y tech.")
 st.write("En esta sección de texto se dispone de un análisis exploratorio del dataset, 3 modelos para la generación de resúmenes y 1 modelo de clasificación de textos")
 analisis_exploratorio = ["EDA","Modelos","Clasificador"]
-eda = st.radio("Elige si quieres ver un análisis exploratorio del dataset, pasar a probar los modelos o probar el clasificador de resúmenes. (En cualquier momento puede pulsar otro botón para ver otra sección)", analisis_exploratorio)
+
 if parametro1 != '':
    eda = st.radio("Elige si quieres ver un análisis exploratorio del dataset, pasar a probar los modelos o probar el clasificador de resúmenes. (En cualquier momento puede pulsar otro botón para ver otra sección)", analisis_exploratorio, index=analisis_exploratorio.index('Modelos'))
+else:
+   eda = st.radio("Elige si quieres ver un análisis exploratorio del dataset, pasar a probar los modelos o probar el clasificador de resúmenes. (En cualquier momento puede pulsar otro botón para ver otra sección)", analisis_exploratorio)
 if eda == "EDA":
     st.divider()
     st.header("Análisis exploratorio del dataset (EDA)")
@@ -94,7 +96,10 @@ if eda == "Modelos":
     st.write("Hemos implementado diferentes modelos para crear resúmenes de noticias. Para probarlo, empieza elegiendo uno de los tres modelos: con arquitectura Encoder-Decoder from Scratch, Modelo de Hugging Face, Few-shot con Hugging Face.")
     st.write("Para medir la eficiencia de los resumenes hemos utilizado BLEU. BLEU es una métrica de evaluación de la calidad de traducción automática que compara un texto generado con uno de referencia, calculando la precisión de las n-gramas coincidentes. Cuanto más alto es el puntaje BLEU, más similar es el texto generado al texto de referencia.")
     modelos = ["Encoder-Decoder", "Hugging Face","Few-shot"]
-    modelo_seleccionado = st.radio("Selecciona un modelo:", modelos)
+    if parametro1 !='':
+        modelo_seleccionado = st.radio("Selecciona un modelo:", modelos)
+    else:
+        modelo_seleccionado = st.radio("Selecciona un modelo:", modelos,index=modelos.index(parametro1)
     txt = st.text_area(
     "Pega aquí la noticia a resumir (tiene que ser en inglés)",height=500
     )
@@ -103,7 +108,6 @@ if eda == "Modelos":
     st.write(f"La longitud de la noticia es de {len(txt.split())} palabras y la de tu resumen de {len(rsm.split())} " )
     categorias = ["business","entertainment","politics","sport","tech"]
     cat = st.selectbox("Selecciona la categoria de la noticia", categorias)
-    modelo_seleccionado = parametro1
     if modelo_seleccionado == "Hugging Face":
         webbrowser.open("www.marca.com")
     if modelo_seleccionado == "Few-shot":
