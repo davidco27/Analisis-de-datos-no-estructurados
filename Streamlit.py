@@ -61,6 +61,7 @@ def create_transfer_model():
 
     model = Model(inputs=base_model.input, outputs=predictions)
     return model
+@st.cache_resource
 def load_resources():
     model_name='google/flan-t5-base'
     model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
@@ -258,7 +259,8 @@ The figures, representing a decline from the 0.2% growth in GDP seen between Jul
 At 2.6%, inflation remains within the Bank's 2-3% target range. However, exports declined in the second half of 2004, fuelling a rise in the country's current account deficit - the difference in the value of imports compared to exports - to a record Australian dollar 29.4bn. The Australian government said the economy remained strong with unemployment at a near 30 year low. "The economy has been strong and it is properly moderating but it doesn't look to me like it's slowing in any unreasonable way," said Treasurer Peter Costello. Stock markets had factored in the likelihood of a rate rise but analysts still expressed concern about the strength of the economy. "That 1.5% annual growth rate is the lowest we have seen since the post-election slump we saw back in 2000-1," said Michael Blythe, chief economist at the Commonwealth Bank of Australia. "This suggests the economy really did slow very sharply in the second half of 2004."
 
 Summary: """)
-            st.write("Como se puede ver, primero se le pone en la situación de que es un expero en hacer resúmenes, esto es un best practice de prompt engineering (Prompt engineering implica la creación de preguntas o ejemplos específicos para guiar a un modelo de lenguaje a producir respuestas deseadas o realizar tareas específicas, lo que puede mejorar su rendimiento y adaptabilidad en diversas aplicaciones de procesamiento del lenguaje natural). Posteriormente se pasan 3 ejemplos de resúmenes para que tenga un baseline de como comportarse. Finalmente se pide que genere el resumen. En este caso la generación de resumen se había limitado a 50 tokens para las pruebas ya que los recursos eran limitados, en la aplicación se ha puesto a 200 nuevos tokens")
+            st.write("Como se puede ver, primero se le pone en la situación de que es un expero en hacer resúmenes, esto es un best practice de prompt engineering (Prompt engineering implica la creación de preguntas o ejemplos específicos para guiar a un modelo de lenguaje a producir respuestas deseadas o realizar tareas específicas, lo que puede mejorar su rendimiento y adaptabilidad en diversas aplicaciones de procesamiento del lenguaje natural). Posteriormente se pasan 3 ejemplos de resúmenes para que tenga un baseline de como comportarse. Finalmente se pide que genere el resumen.")
+            st.write("Durante las pruebas se ha puesto que genere como máximo 50 tokens, mientras que en la aplicación se ha intentado que genere resúmenes más largos. Esto se consigue poniendo un mínimo de tokens, aunque no se puede poner muy alto ya que se empiezan a repetir frases porque el modelo no es tan grande. Hemos considerado un buen trade-off un mínimo de 35 y un máximo de 70 tokens.")
             st.write("A continuación se muestra una imagen con el resumen que venia en los datos y el resumen generado:")
             st.image("imagenesEDA/EjemploFewShot.png", use_column_width=True)
             st.write("Como se puede ver el resúmen generado es razonable teniendo en cuenta la limitación de caracteres.")

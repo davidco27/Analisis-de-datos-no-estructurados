@@ -128,8 +128,8 @@ def generar_resumen_few_shot(tokenizer,model,content,summmary_ref,category):
         output = tokenizer.decode(
             model.generate(
                 inputs["input_ids"],
-                max_new_tokens=200,
-                min_new_tokens=100,
+                max_new_tokens=70,
+                min_new_tokens=35,
             )[0], 
             skip_special_tokens=True
         )
