@@ -147,7 +147,7 @@ def generar_resumen_few_shot(tokenizer,model,content,summmary_ref,category):
         error = 1
         
         
-    return resumen_gen,score, error
+    return resumen_gen,score
 
 def generar_resumen_lstm(content,summmary_ref):
     error = 0
@@ -165,5 +165,5 @@ def generar_resumen_lstm(content,summmary_ref):
     except:
         error = 1
         
-    return resumen_gen,score, error
+    return resumen_gen,score
     

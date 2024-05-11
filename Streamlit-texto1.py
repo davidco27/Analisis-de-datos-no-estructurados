@@ -162,11 +162,10 @@ Summary: """)
         
         btn_gen = st.button("Generar Resumen con Modelo de Few-Shot")
         if btn_gen:
-            with st.spinner(text="Generando el resumen..."):
-                rsm_gen,score, error = generar_resumen_few_shot(tokenizer,model,txt,rsm,cat)
-            if error:
+            if len(txt) == 0  or len(rsm) == 0  :
                 st.warning("¡Cuidado! Introduzca una noticia y un resumen para continuar.")
-            else:
+            with st.spinner(text="Generando el resumen..."):
+                rsm_gen,score = generar_resumen_few_shot(tokenizer,model,txt,rsm,cat)
                 st.subheader("Resultados")
                 st.markdown("***Resumen Generado***")
                 st.write(rsm_gen)
@@ -220,7 +219,7 @@ decoder_outputs = decoder_dense(decoder_outputs)
                 st.warning("¡Cuidado! Introduzca una noticia y un resumen para continuar.")
             else:
                 with st.spinner(text="Generando el resumen..."):
-                    rsm_gen,score = generar_resumen_lstm(txt,rsm)
+                    rsm_gen,score,error = generar_resumen_lstm(txt,rsm)
                 st.subheader("Resultados")
                 st.markdown("***Resumen Generado***")
                 st.write(rsm_gen)

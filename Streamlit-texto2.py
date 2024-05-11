@@ -18,8 +18,8 @@ st.write("Hemos implementado diferentes modelos para crear resúmenes de noticia
 st.write("Para medir la eficiencia de los resumenes hemos utilizado BLEU. BLEU es una métrica de evaluación de la calidad de traducción automática que compara un texto generado con uno de referencia, calculando la precisión de las n-gramas coincidentes. Cuanto más alto es el puntaje BLEU, más similar es el texto generado al texto de referencia.")
 modelos = ["Encoder-Decoder", "Hugging Face","Few-shot"]
 modelo_seleccionado = st.radio("Selecciona un modelo:", modelos)
-if modelo_seleccionado == "Encoder-Decoder":
-    webbrowser.open("www.marca.com")
+if modelo_seleccionado == "Encoder-Decoder" or modelo_seleccionado == "Few-shot":
+    webbrowser.open("https://no-estructurados-texto1.streamlit.app/")
 txt = st.text_area(
 "Pega aquí la noticia a resumir (tiene que ser en inglés)",height=500
 )
