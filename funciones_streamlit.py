@@ -130,7 +130,7 @@ def generar_resumen_few_shot(tokenizer,model,content,summmary_ref,category):
             model.generate(
                 inputs["input_ids"],
                 max_new_tokens=70,
-                min_new_tokens=35,
+                min_new_tokens=50,
             )[0], 
             skip_special_tokens=True
         )
@@ -150,6 +150,7 @@ def generar_resumen_few_shot(tokenizer,model,content,summmary_ref,category):
     return resumen_gen,score, error
 
 def generar_resumen_lstm(content,summmary_ref):
+    error = 0
     score = 0
     try:
         encoder_model = load_model("TEXTO/encoder_model.h5")
@@ -161,8 +162,8 @@ def generar_resumen_lstm(content,summmary_ref):
 
         # Asegurándonos de que las referencias estén en una lista de listas como espera corpus_bleu
         score = corpus_bleu([referencias_tokenizadas], [hipotesis_tokenizada], smoothing_function=SmoothingFunction().method1)
-    except Exception as e:
-        error = e
+    except:
+        error = 1
         
-    return resumen_gen,score
+    return resumen_gen,score, error
     
