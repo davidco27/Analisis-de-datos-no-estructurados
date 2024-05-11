@@ -63,7 +63,7 @@ scratch_model,transfer_model = load_resources()
 opciones = [
     ("Inicio", "https://no-estructurados-inicio.streamlit.app/"),
     ("Imagen", "https://no-estructurados-image.streamlit.app/"),
-    ("Texto", "https://no-estructurados-texto1.streamlit.app/"),
+    ("Texto", "no-estructurados-texto1.streamlit.app"),
 ]
 opcion = st.sidebar.selectbox("Elige un sitio web para visitar:", opciones, format_func=lambda x: x[0])
 if opcion[1]:
