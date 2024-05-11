@@ -61,8 +61,7 @@ def load_resources():
 
 scratch_model,transfer_model = load_resources()
 
-st.sidebar.link_button(label="Inicio", url="https://no-estructurados-inicio.streamlit.app")
-st.sidebar.link_button(label="Imagen", url="https://no-estructurados-imagen.streamlit.app")
+st.sidebar.link_button(label="Inicio", url="https://no-estructurados-start.streamlit.app")
 st.sidebar.link_button(label="Texto", url="https://no-estructurados-texto1.streamlit.app")
 
 st.title("IMAGEN")

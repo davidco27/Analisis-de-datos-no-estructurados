@@ -13,9 +13,9 @@ def load_resources():
     return summarizer
 
 summarizer = load_resources()
-st.sidebar.link_button(label="Inicio", url="https://no-estructurados-inicio.streamlit.app")
+st.sidebar.link_button(label="Inicio", url="https://no-estructurados-start.streamlit.app")
 st.sidebar.link_button(label="Imagen", url="https://no-estructurados-imagen.streamlit.app")
-st.sidebar.link_button(label="Texto", url="https://no-estructurados-texto1.streamlit.app")
+
 st.header("Resumen de las noticias")
 st.write("Hemos implementado diferentes modelos para crear resúmenes de noticias. Para probarlo, empieza elegiendo uno de los tres modelos: con arquitectura Encoder-Decoder from Scratch, Modelo de Hugging Face, Few-shot con Hugging Face.")
 st.write("Para medir la eficiencia de los resumenes hemos utilizado BLEU. BLEU es una métrica de evaluación de la calidad de traducción automática que compara un texto generado con uno de referencia, calculando la precisión de las n-gramas coincidentes. Cuanto más alto es el puntaje BLEU, más similar es el texto generado al texto de referencia.")

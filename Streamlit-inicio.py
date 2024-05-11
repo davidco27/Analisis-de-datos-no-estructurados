@@ -2,7 +2,6 @@
 # coding: utf-8
 import streamlit as st
 
-st.sidebar.link_button(label="Inicio", url="https://no-estructurados-inicio.streamlit.app")
 st.sidebar.link_button(label="Imagen", url="https://no-estructurados-imagen.streamlit.app")
 st.sidebar.link_button(label="Texto", url="https://no-estructurados-texto1.streamlit.app")
 _,col_img,_,_,_ = st.columns(5)
