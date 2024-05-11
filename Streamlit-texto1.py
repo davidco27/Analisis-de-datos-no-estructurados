@@ -102,7 +102,7 @@ if eda == "Modelos":
         modelo_seleccionado = st.radio("Selecciona un modelo:", modelos)
     else:
         modelo_seleccionado = st.radio("Selecciona un modelo:", modelos,index=modelos.index(parametro1))
-    st.sidebar.link_button(label="Hugging Face", url="https://no-estructurados-texto1.streamlit.app")
+    st.link_button(label="Hugging Face", url="https://no-estructurados-texto1.streamlit.app")
     txt = st.text_area(
     "Pega aquí la noticia a resumir (tiene que ser en inglés)",height=500
     )
