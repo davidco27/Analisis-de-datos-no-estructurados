@@ -97,11 +97,12 @@ if eda == "Modelos":
     st.header("Resumen de las noticias")
     st.write("Hemos implementado diferentes modelos para crear resúmenes de noticias. Para probarlo, empieza elegiendo uno de los tres modelos: con arquitectura Encoder-Decoder from Scratch, Modelo de Hugging Face, Few-shot con Hugging Face.")
     st.write("Para medir la eficiencia de los resumenes hemos utilizado BLEU. BLEU es una métrica de evaluación de la calidad de traducción automática que compara un texto generado con uno de referencia, calculando la precisión de las n-gramas coincidentes. Cuanto más alto es el puntaje BLEU, más similar es el texto generado al texto de referencia.")
-    modelos = ["Encoder-Decoder", "Hugging Face","Few-shot"]
+    modelos = ["Encoder-Decoder","Few-shot"]
     if parametro1 =='':
         modelo_seleccionado = st.radio("Selecciona un modelo:", modelos)
     else:
         modelo_seleccionado = st.radio("Selecciona un modelo:", modelos,index=modelos.index(parametro1))
+    st.sidebar.link_button(label="Hugging Face", url="https://no-estructurados-texto1.streamlit.app")
     txt = st.text_area(
     "Pega aquí la noticia a resumir (tiene que ser en inglés)",height=500
     )
@@ -110,8 +111,6 @@ if eda == "Modelos":
     st.write(f"La longitud de la noticia es de {len(txt.split())} palabras y la de tu resumen de {len(rsm.split())} " )
     categorias = ["business","entertainment","politics","sport","tech"]
     cat = st.selectbox("Selecciona la categoria de la noticia", categorias)
-    if modelo_seleccionado == "Hugging Face":
-        webbrowser.open("www.marca.com")
     if modelo_seleccionado == "Few-shot":
         st.write("En este modelo de generación de resúmenes se utilizado un modelo de ámbito general al que se prepara para generar resúmenes.")
         st.write(""" El modelo elegido es: "google/flan-t5-base", un modelo de lenguaje basado en la arquitectura T5, desarrollado por Google, con un tamaño de base. Este modelo se puede utilizar para una amplia gama de tareas de procesamiento de lenguaje natural, como traducción, generación de texto, respuesta a preguntas, resumen de texto, entre otras. En este caso lo que se utiliza es el modelo de base y mediante prompt se le hace un few shot.""")
