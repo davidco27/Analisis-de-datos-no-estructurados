@@ -20,8 +20,8 @@ modelos = ["Hugging Face","Encoder-Decoder","Few-shot"]
 modelo_seleccionado = st.radio("Selecciona un modelo:", modelos)
 if modelo_seleccionado == "Encoder-Decoder":
     webbrowser.open("https://no-estructurados-texto1.streamlit.app/?valor=Encoder-Decoder")
-if modelo_seleccionado == "Few-Shot":
-    webbrowser.open("https://no-estructurados-texto1.streamlit.app/?valor=Few-Shot")
+if modelo_seleccionado == "Few-shot":
+    webbrowser.open("https://no-estructurados-texto1.streamlit.app/?valor=Few-shot")
 txt = st.text_area(
 "Pega aquí la noticia a resumir (tiene que ser en inglés)",height=500
 )

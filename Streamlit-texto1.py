@@ -96,6 +96,7 @@ if eda == "Modelos":
     st.write("Hemos implementado diferentes modelos para crear resúmenes de noticias. Para probarlo, empieza elegiendo uno de los tres modelos: con arquitectura Encoder-Decoder from Scratch, Modelo de Hugging Face, Few-shot con Hugging Face.")
     st.write("Para medir la eficiencia de los resumenes hemos utilizado BLEU. BLEU es una métrica de evaluación de la calidad de traducción automática que compara un texto generado con uno de referencia, calculando la precisión de las n-gramas coincidentes. Cuanto más alto es el puntaje BLEU, más similar es el texto generado al texto de referencia.")
     modelos = ["Encoder-Decoder", "Hugging Face","Few-shot"]
+    st.write(parametro1)
     if parametro1 !='':
         modelo_seleccionado = st.radio("Selecciona un modelo:", modelos)
     else:
