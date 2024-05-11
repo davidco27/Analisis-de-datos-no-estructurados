@@ -80,7 +80,7 @@ selected_folder = st.sidebar.selectbox("Selecciona un entorno", folders_in_direc
 if selected_folder == "Inicio":
     _,col_img,_,_,_ = st.columns(5)
     with col_img:
-        st.image("imagenesDesign\logo-icai.png", width = 300)
+        st.image("imagenesDesign/logo-icai.png", width = 300)
     st.title("Práctica final No estructurados")
     st.subheader("Javier Álvarez Martínez y David Cocero Quintanilla")
     st.divider()
