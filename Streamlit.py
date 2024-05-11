@@ -63,17 +63,17 @@ def create_transfer_model():
     return model
 @st.cache_resource
 def load_resources():
-    model_name='google/flan-t5-base'
-    model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
-    summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
-    tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=True)
+   # model_name='google/flan-t5-base'
+    #model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
+   # summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
+    #tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=True)
     scratch_model = create_model()
     scratch_model.load_weights("IMAGEN/scratch.h5")
     transfer_model = create_transfer_model()
     transfer_model.load_weights("IMAGEN/transfer.weights.h5")
-    return model,tokenizer,summarizer,scratch_model,transfer_model
+    return scratch_model,transfer_model
 
-model, tokenizer,summarizer,scratch_model,transfer_model = load_resources()
+scratch_model,transfer_model = load_resources()
 folders_in_directory = ["Texto","Imagen"]
 folders_in_directory.insert(0, "Inicio")
 selected_folder = st.sidebar.selectbox("Selecciona un entorno", folders_in_directory)
