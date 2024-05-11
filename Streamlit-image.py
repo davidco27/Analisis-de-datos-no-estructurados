@@ -61,10 +61,9 @@ def load_resources():
 
 scratch_model,transfer_model = load_resources()
 opciones = [
-    ("Inicio", ""),  # Opción predeterminada
-    ("OpenAI", "https://www.openai.com"),
-    ("GitHub", "https://github.com"),
-    ("Streamlit", "https://streamlit.io")
+    ("Inicio", "https://no-estructurados-inicio.streamlit.app/"),
+    ("Imagen", "https://no-estructurados-image.streamlit.app/"),
+    ("Texto", "https://no-estructurados-texto1.streamlit.app/"),
 ]
 opcion = st.sidebar.selectbox("Elige un sitio web para visitar:", opciones, format_func=lambda x: x[0])
 if opcion[1]:
