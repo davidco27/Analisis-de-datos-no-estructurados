@@ -5,9 +5,6 @@ import streamlit as st
 import matplotlib.pyplot as plt
 from transformers import pipeline
 from funciones_streamlit import generar_resumen
-import webbrowser
-
-@st.cache_resource
 def load_resources():
     summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
     return summarizer
