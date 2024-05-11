@@ -1,20 +1,10 @@
 #!/usr/bin/env python
 # coding: utf-8
-
-import os
-import keras.layers
-import numpy as np
 import streamlit as st
 import pandas as pd
-import ast
-import altair as alt
-import matplotlib.pyplot as plt
-from datetime import datetime
 import joblib
 import keras
 import webbrowser
-from PIL import Image
-from keras.models import Sequential
 from funciones_streamlit import generar_resumen_few_shot,generar_resumen_lstm,search_news
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 

@@ -164,5 +164,5 @@ def generar_resumen_lstm(content,summmary_ref):
     except:
         error = 1
         
-    return resumen_gen,score, error
+    return resumen_gen,score,error
     
