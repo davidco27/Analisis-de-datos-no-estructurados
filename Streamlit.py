@@ -414,7 +414,7 @@ if selected_folder == "Imagen":
             st.write("El summary del modelo para ver el número de parámetros y de un vistazo las capas es:")
             st.image("imagenesIMAGEN/model_summary.png", use_column_width=True)
             st.write("Para terminar con la explicación, los resultados obtenidos con el modelo en la fase de entrenamiento son los siguientes:")
-            st.image("imagenesIMAGEN\grafiacasScratch.png", use_column_width=True)
+            st.image("imagenesIMAGEN/grafiacasScratch.png", use_column_width=True)
             st.write("En las gráficas se puede apreciar el entrenamiento del modelo a lo largo de las épocas. Cabe destacar una divergencia significativa entre la precisión y la loss de entrenamiento (líneas azules) frente a la precisión y la loss de validación (líneas rojas). El modelo alcanza una alta precisión en los datos de entrenamiento, pero la fluctuante y decreciente precisión en los datos de validación, junto con la divergencia en las curvas de pérdida, sugieren un claro caso de sobreajuste.")
             st.write("Vamos a analizar la precisión para las diferentes clases en test")
             st.image("imagenesIMAGEN/testScratch.png", use_column_width=True)
