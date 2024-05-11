@@ -5,8 +5,10 @@ import streamlit as st
 import matplotlib.pyplot as plt
 from transformers import pipeline
 from funciones_streamlit import generar_resumen
+
+@st.cache_resource
 def load_resources():
-    summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
+    summarizer = pipeline("summarization", model="Falconsai/text_summarization")
     return summarizer
 
 summarizer = load_resources()
@@ -29,7 +31,7 @@ st.write(f"La longitud de la noticia es de {len(txt.split())} palabras y la de t
 categorias = ["business","entertainment","politics","sport","tech"]
 cat = st.selectbox("Selecciona la categoria de la noticia", categorias)
 st.write("En este modelo de texto, se ha utilizado un modelo preentrenado de HuggingFace preparado para resumir. Para seleccionar la longitud de los resúmenes lo que hemos hecho es utilizar como máximo las longitudes medias de resúmenes que teníamos en los datos de partida y como valor mínimo de longitud hemos usado el máximo menos 30 aproximadamente.")
-st.write("""El modelo "facebook/bart-large-cnn" es parte de la familia BART (BART: Bidirectional and Auto-Regressive Transformers), desarrollado por Facebook AI. BART es un modelo basado en la arquitectura Transformer que ha demostrado ser efectivo en tareas de generación de lenguaje, traducción, resumen de texto...""")
+st.write("""El modelo "Falconsai/text_summarization" es parte de la familia BART (BART: Bidirectional and Auto-Regressive Transformers), desarrollado por Facebook AI. BART es un modelo basado en la arquitectura Transformer que ha demostrado ser efectivo en tareas de generación de lenguaje, traducción, resumen de texto...""")
 st.write("""BART es un modelo transformer encoder-encoder (seq2seq) con un encoder bidireccional (similar a BERT) y un decoder autoregresivo (similar a GPT). BART se pre-entrena mediante la corrupción de texto con una función de ruido arbitraria y el aprendizaje de un modelo para reconstruir el texto original. """)
 btn_gen = st.button("Generar Resumen con modelo de Hugging Face")
 if btn_gen:
