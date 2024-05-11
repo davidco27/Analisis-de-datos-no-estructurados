@@ -8,7 +8,7 @@ from funciones_streamlit import generar_resumen
 
 @st.cache_resource
 def load_resources():
-    summarizer = pipeline("summarization", model="")
+    summarizer = pipeline("summarization", model="Falconsai/text_summarization")
     return summarizer
 
 summarizer = load_resources()
