@@ -164,13 +164,14 @@ Summary: """)
         if btn_gen:
             if len(txt) == 0  or len(rsm) == 0  :
                 st.warning("¡Cuidado! Introduzca una noticia y un resumen para continuar.")
-            with st.spinner(text="Generando el resumen..."):
-                rsm_gen,score = generar_resumen_few_shot(tokenizer,model,txt,rsm,cat)
-                st.subheader("Resultados")
-                st.markdown("***Resumen Generado***")
-                st.write(rsm_gen)
-                st.markdown("***BLEU score obtenido***")
-                st.write(f"{score*100:.2f} %")
+            else:
+                with st.spinner(text="Generando el resumen..."):
+                    rsm_gen,score = generar_resumen_few_shot(tokenizer,model,txt,rsm,cat)
+                    st.subheader("Resultados")
+                    st.markdown("***Resumen Generado***")
+                    st.write(rsm_gen)
+                    st.markdown("***BLEU score obtenido***")
+                    st.write(f"{score*100:.2f} %")
     if modelo_seleccionado == "Encoder-Decoder":
         st.write("Este modelo tiene como objetivo el resumen de noticias, pero para su consecución utiliza una estrategia completamente distinta a los otros dos. En vez de emplear un modelo de LLM pre-entrenado, usa una arquitectura de encoder-decoder from scratch para tratar problemas de tipo Seq2seq.")
         st.write("""La primera parte de la red es el encoder. En esta sección se recibe la noticia tokenizada y se crean los Embeddings. Estos embeddings se pasan a continuación por 3 redes LSTM para obtener un vector de tamaño fijo con los encodings.""")
