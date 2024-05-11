@@ -161,8 +161,8 @@ def generar_resumen_lstm(content,summmary_ref):
 
         # Asegurándonos de que las referencias estén en una lista de listas como espera corpus_bleu
         score = corpus_bleu([referencias_tokenizadas], [hipotesis_tokenizada], smoothing_function=SmoothingFunction().method1)
-    except:
-        error = 1
+    except Exception as e:
+        error = e
         
     return resumen_gen,score,error
     

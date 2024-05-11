@@ -218,9 +218,8 @@ decoder_outputs = decoder_dense(decoder_outputs)
         if btn_gen:
             with st.spinner(text="Generando el resumen..."):
                 rsm_gen,score, error = generar_resumen_lstm(txt,rsm)
-            if error:
+                st.write(error)
                 st.warning("¡Cuidado! Introduzca una noticia y un resumen para continuar.")
-            else:
                 st.subheader("Resultados")
                 st.markdown("***Resumen Generado***")
                 st.write(rsm_gen)
