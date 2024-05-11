@@ -12,3 +12,4 @@ torchvision
 scikit-learn
 torch == 2.2.1 
 tf-keras
+webbrowser
