@@ -61,9 +61,9 @@ def load_resources():
 
 scratch_model,transfer_model = load_resources()
 
-st.link_button("Inicio", "https://no-estructurados-inicio.streamlit.app/"),
-st.link_button("Imagen", "https://no-estructurados-image.streamlit.app/"),
-st.link_button("Texto", "https://no-estructurados-texto1.streamlit.app/"),
+st.sidebar.link_button("Inicio", "https://no-estructurados-inicio.streamlit.app"),
+st.sidebar.link_button("Imagen", "https://no-estructurados-image.streamlit.app"),
+st.sidebar.link_button("Texto", "https://no-estructurados-texto1.streamlit.app"),
 
 st.title("IMAGEN")
 st.subheader("Dataset de imágenes de 100 deportes")
