@@ -26,7 +26,7 @@ st.write("En esta sección de texto se dispone de un análisis exploratorio del 
 analisis_exploratorio = ["EDA","Modelos","Clasificador"]
 eda = st.radio("Elige si quieres ver un análisis exploratorio del dataset, pasar a probar los modelos o probar el clasificador de resúmenes. (En cualquier momento puede pulsar otro botón para ver otra sección)", analisis_exploratorio)
 if parametro1 != '':
-   eda = 'Modelos'
+   eda = st.radio("Elige si quieres ver un análisis exploratorio del dataset, pasar a probar los modelos o probar el clasificador de resúmenes. (En cualquier momento puede pulsar otro botón para ver otra sección)", analisis_exploratorio, index=analisis_exploratorio.index('Modelos'))
 if eda == "EDA":
     st.divider()
     st.header("Análisis exploratorio del dataset (EDA)")
