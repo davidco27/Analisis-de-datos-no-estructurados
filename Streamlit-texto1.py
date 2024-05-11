@@ -12,55 +12,12 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 import joblib
 import keras
+import webbrowser
 from PIL import Image
 from keras.models import Sequential
-from transformers import pipeline
-from funciones_streamlit import generar_resumen,generar_resumen_few_shot,generar_resumen_lstm,clasificar_imagen_cnn,search_news,clasificar_imagen_transfer_learning
+from funciones_streamlit import generar_resumen_few_shot,generar_resumen_lstm,search_news
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
-from keras.layers import Dense,Flatten,Conv2D
-from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Input, Dense, Flatten, GlobalAveragePooling2D
-from tensorflow.keras.applications import EfficientNetB0
-from keras.layers import MaxPool2D,Dropout
 
-def create_model():
-    model = Sequential()
-    model.add(Conv2D(input_shape=(224,224,3), filters=32, kernel_size=(3,3), padding="same", activation="relu"))
-    model.add(Conv2D(filters=100, kernel_size=(3, 3), padding="same", activation="relu"))
-    model.add(MaxPool2D(pool_size=(2, 2), strides=(2, 2)))
-    model.add(Dropout(0.25))
-
-    model.add(Conv2D(filters=64, kernel_size=(3, 3), padding="same", activation="relu"))
-    model.add(MaxPool2D(pool_size=(2, 2), strides=(2, 2)))
-    model.add(Dropout(0.25))
-
-    model.add(Conv2D(filters=128, kernel_size=(3, 3), padding="same", activation="relu"))
-    model.add(MaxPool2D(pool_size=(2, 2), strides=(2, 2)))
-    model.add(Dropout(0.25))
-
-    model.add(Flatten())
-
-    model.add(Dense(units=233, activation="relu"))
-    model.add(Dropout(0.5))
-    model.add(Dense(units=10, activation="softmax"))  # 10 unidades para salida, por las clases
-
-    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
-    return model
-def create_transfer_model():
-    base_model = EfficientNetB0(weights="imagenet", include_top=False, input_shape=(299, 299, 3))
-
-    # Congelamos todas las capas menos las 2 ultimas
-    for layer in base_model.layers[:-2]:
-        layer.trainable = False
-
-    # Clasificador
-    x = base_model.output
-    x = GlobalAveragePooling2D()(x)
-    x = Dropout(0.25)(x)
-    predictions = Dense(100, activation="softmax")(x)
-
-    model = Model(inputs=base_model.input, outputs=predictions)
-    return model
 @st.cache_resource
 def load_resources():
     model_name='google/flan-t5-base'
@@ -153,21 +110,7 @@ if eda == "Modelos":
     categorias = ["business","entertainment","politics","sport","tech"]
     cat = st.selectbox("Selecciona la categoria de la noticia", categorias)
     if modelo_seleccionado == "Hugging Face":
-        st.write("En este modelo de texto, se ha utilizado un modelo preentrenado de HuggingFace preparado para resumir. Para seleccionar la longitud de los resúmenes lo que hemos hecho es utilizar como máximo las longitudes medias de resúmenes que teníamos en los datos de partida y como valor mínimo de longitud hemos usado el máximo menos 30 aproximadamente.")
-        st.write("""El modelo "facebook/bart-large-cnn" es parte de la familia BART (BART: Bidirectional and Auto-Regressive Transformers), desarrollado por Facebook AI. BART es un modelo basado en la arquitectura Transformer que ha demostrado ser efectivo en tareas de generación de lenguaje, traducción, resumen de texto...""")
-        st.write("""BART es un modelo transformer encoder-encoder (seq2seq) con un encoder bidireccional (similar a BERT) y un decoder autoregresivo (similar a GPT). BART se pre-entrena mediante la corrupción de texto con una función de ruido arbitraria y el aprendizaje de un modelo para reconstruir el texto original. """)
-        btn_gen = st.button("Generar Resumen con modelo de Hugging Face")
-        if btn_gen:
-            with st.spinner(text="Generando el resumen..."):
-                rsm_gen,score, error = generar_resumen(summarizer,txt,cat,rsm)
-            if error:
-                st.warning("¡Cuidado! Introduzca una noticia y un resumen para continuar.")
-            else:
-                st.subheader("Resultados")
-                st.markdown("***Resumen Generado***")
-                st.write(rsm_gen)
-                st.markdown("***BLEU score obtenido***")
-                st.write(f"{score*100:.2f} %")
+        webbrowser.open("www.marca.com")
     if modelo_seleccionado == "Few-shot":
         st.write("En este modelo de generación de resúmenes se utilizado un modelo de ámbito general al que se prepara para generar resúmenes.")
         st.write(""" El modelo elegido es: "google/flan-t5-base", un modelo de lenguaje basado en la arquitectura T5, desarrollado por Google, con un tamaño de base. Este modelo se puede utilizar para una amplia gama de tareas de procesamiento de lenguaje natural, como traducción, generación de texto, respuesta a preguntas, resumen de texto, entre otras. En este caso lo que se utiliza es el modelo de base y mediante prompt se le hace un few shot.""")
