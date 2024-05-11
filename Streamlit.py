@@ -264,6 +264,7 @@ Summary: """)
             st.write("A continuación se muestra una imagen con el resumen que venia en los datos y el resumen generado:")
             st.image("imagenesEDA/EjemploFewShot.png", use_column_width=True)
             st.write("Como se puede ver el resúmen generado es razonable teniendo en cuenta la limitación de caracteres.")
+            
             btn_gen = st.button("Generar Resumen con Modelo de Few-Shot")
             if btn_gen:
                 with st.spinner(text="Generando el resumen..."):
@@ -334,6 +335,7 @@ decoder_outputs = decoder_dense(decoder_outputs)
 if selected_folder == "Imagen":
     st.title("IMAGEN")
     st.subheader("Dataset de imágenes de 100 deportes")
+    st.link_button("Go to gallery", "https://docs.streamlit.io/develop/api-reference/widgets/st.link_button")
     st.write("Es una colección de imágenes que cubren 100 deportes diferentes. Las imágenes están en formato jpg con dimensiones de 224x224x3. Los datos están separados en directorios de entrenamiento, prueba y validación.")
     st.divider()
     img_pos = ["Generador","Clasificador"]
