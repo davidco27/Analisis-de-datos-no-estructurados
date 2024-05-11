@@ -16,13 +16,17 @@ def load_resources():
     return model, tokenizer
 
 model,tokenizer = load_resources()
+params = st.experimental_get_query_params()
 
+parametro1 = params.get('valor', [''])[0]
 st.title("TEXTO")
 st.subheader("Dataset de noticias de la BBC")
 st.write("El conjunto de datos para la generación de resúmenes de textos consta de 2225 artículos de 5 temáticas diferentes de la BBC de 2004 a 2005 en la carpeta “News Articles” . Para cada artículo, se proporciona el resumen generado por una persona para cada noticia. Las temáticas que tiene el dataset son: business, entertainment, politics, sport y tech.")
 st.write("En esta sección de texto se dispone de un análisis exploratorio del dataset, 3 modelos para la generación de resúmenes y 1 modelo de clasificación de textos")
 analisis_exploratorio = ["EDA","Modelos","Clasificador"]
 eda = st.radio("Elige si quieres ver un análisis exploratorio del dataset, pasar a probar los modelos o probar el clasificador de resúmenes. (En cualquier momento puede pulsar otro botón para ver otra sección)", analisis_exploratorio)
+if parametro1 != '':
+   eda = 'Modelos'
 if eda == "EDA":
     st.divider()
     st.header("Análisis exploratorio del dataset (EDA)")
@@ -99,6 +103,7 @@ if eda == "Modelos":
     st.write(f"La longitud de la noticia es de {len(txt.split())} palabras y la de tu resumen de {len(rsm.split())} " )
     categorias = ["business","entertainment","politics","sport","tech"]
     cat = st.selectbox("Selecciona la categoria de la noticia", categorias)
+    modelo_seleccionado = parametro1
     if modelo_seleccionado == "Hugging Face":
         webbrowser.open("www.marca.com")
     if modelo_seleccionado == "Few-shot":
