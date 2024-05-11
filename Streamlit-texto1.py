@@ -99,7 +99,7 @@ if eda == "Modelos":
     if parametro1 !='':
         modelo_seleccionado = st.radio("Selecciona un modelo:", modelos)
     else:
-        modelo_seleccionado = st.radio("Selecciona un modelo:", modelos,index=modelos.index(parametro1)
+        modelo_seleccionado = st.radio("Selecciona un modelo:", modelos,index=modelos.index(parametro1))
     txt = st.text_area(
     "Pega aquí la noticia a resumir (tiene que ser en inglés)",height=500
     )
