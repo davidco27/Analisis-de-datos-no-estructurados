@@ -61,7 +61,7 @@ def load_resources():
 
 scratch_model,transfer_model = load_resources()
 
-st.link_button(label="Inicio", page="https://www.marca.com"),
+st.link_button(label="Inicio", page="https://www.marca.com")
 st.link_button(label="Imagen", page="https://no-estructurados-image.streamlit.app")
 st.link_button(label="Texto", page="https://no-estructurados-texto1.streamlit.app")
 
