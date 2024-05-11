@@ -60,14 +60,11 @@ def load_resources():
     return scratch_model,transfer_model
 
 scratch_model,transfer_model = load_resources()
-opciones = [
-    ("Inicio", "https://no-estructurados-inicio.streamlit.app/"),
-    ("Imagen", "https://no-estructurados-image.streamlit.app/"),
-    ("Texto", "www.marca.com"),
-]
-opcion = st.sidebar.selectbox("Elige un sitio web para visitar:", opciones, format_func=lambda x: x[0])
-if opcion[1]:
-    webbrowser.open(opcion[1])
+
+st.sidebar.link_button("Inicio", "https://no-estructurados-inicio.streamlit.app/"),
+st.sidebar.link_button("Imagen", "https://no-estructurados-image.streamlit.app/"),
+st.sidebar.link_button("Texto", "https://no-estructurados-texto1.streamlit.app/"),
+
 st.title("IMAGEN")
 st.subheader("Dataset de imágenes de 100 deportes")
 st.write("Es una colección de imágenes que cubren 100 deportes diferentes. Las imágenes están en formato jpg con dimensiones de 224x224x3. Los datos están separados en directorios de entrenamiento, prueba y validación.")
