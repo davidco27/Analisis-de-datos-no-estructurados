@@ -1,21 +1,10 @@
 #!/usr/bin/env python
 # coding: utf-8
-
-import os
-import numpy as np
 import streamlit as st
-import pandas as pd
-import webbrowser
 
-opciones = [
-    ("Inicio", ""),  # Opción predeterminada
-    ("OpenAI", "https://www.openai.com"),
-    ("GitHub", "https://github.com"),
-    ("Streamlit", "https://streamlit.io")
-]
-opcion = st.sidebar.selectbox("Elige un sitio web para visitar:", opciones, format_func=lambda x: x[0])
-if opcion[1]:
-    webbrowser.open(opcion[1])
+st.sidebar.link_button(label="Inicio", url="https://no-estructurados-inicio.streamlit.app")
+st.sidebar.link_button(label="Imagen", url="https://no-estructurados-imagen.streamlit.app")
+st.sidebar.link_button(label="Texto", url="https://no-estructurados-texto1.streamlit.app")
 _,col_img,_,_,_ = st.columns(5)
 with col_img:
     st.image("imagenesDesign/logo-icai.png", width = 300)
