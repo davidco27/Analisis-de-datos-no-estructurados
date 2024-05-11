@@ -9,8 +9,6 @@ huggingface-hub == 0.22.2
 transformers == 4.40.1
 nltk == 3.8.1
 torchvision
-torchvision.extension
 scikit-learn
 torch == 2.2.1 
 tf-keras
-pywrap
